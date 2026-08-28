@@ -2,121 +2,94 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BIC.SYS</title>
-<meta name="theme-color" content="#00d4ff">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>BIC NEON VOICE FIX</title>
+<meta name="theme-color" content="#00FFD1">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-*{box-sizing:border-box;margin:0;padding:0;font-family:'JetBrains Mono',monospace}
-body{background:#05070a;color:#e0f2ff;display:flex;justify-content:center;height:100vh}
-.app{width:100%;max-width:480px;background:#0a0e14;display:flex;flex-direction:column;height:100dvh;border:1px solid #00d4ff30}
-.header{padding:16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #00d4ff30}
-.logo{width:40px;height:40px;border:1px solid #00d4ff;display:flex;align-items:center;justify-content:center;color:#00d4ff;font-weight:800}
-#voiceBtn{margin-left:auto;width:50px;height:50px;border-radius:50%;border:2px solid #00d4ff;background:#000;color:#00d4ff;font-size:24px}
-#voiceBtn.listening{background:#00d4ff;color:#000;box-shadow:0 0 20px #00d4ff;animation:pulse 1s infinite}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-#status{font-size:10px;opacity:.6;margin-top:2px}
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@500;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#050507;color:#fff;font-family:'Inter',sans-serif;display:flex;justify-content:center;height:100vh}
+.app{width:100%;max-width:480px;background:#0e0e10;border:1px solid #ffffff15;display:flex;flex-direction:column;height:100dvh}
+.header{padding:16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #ffffff15}
+.logo{width:40px;height:40px;background:#fff;color:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800}
+#voiceBtn{margin-left:auto;width:56px;height:56px;border-radius:50%;border:2px solid #00FFD1;background:#000;color:#00FFD1;font-size:26px;cursor:pointer}
+#voiceBtn.on{background:#00FFD1;color:#000;box-shadow:0 0 30px #00FFD1}
+#status{font-family:'JetBrains Mono';font-size:10px;opacity:.6;margin-top:3px}
+#debug{font-family:'JetBrains Mono';font-size:10px;padding:8px 14px;background:#00FFD1;color:#000;display:none}
+#debug.show{display:block}
 #chat{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
-.msg{max-width:80%;padding:10px 14px;border-radius:8px;font-size:14px;line-height:1.4}
-.user{align-self:flex-end;background:#00d4ff;color:#000}
-.bic{align-self:flex-start;background:#ffffff10;border-left:2px solid #00d4ff}
-.bar{display:flex;gap:8px;padding:12px;border-top:1px solid #00d4ff30}
-input{flex:1;background:#000;border:1px solid #00d4ff40;padding:12px;color:#fff;border-radius:8px;outline:none}
-#send{width:44px;height:44px;background:#00d4ff;border:none;border-radius:8px;font-weight:800}
-.hint{padding:10px;text-align:center;font-size:11px;opacity:.5;border-bottom:1px solid #00d4ff20}
+.msg{max-width:85%;padding:12px 14px;border-radius:14px;font-size:14px;line-height:1.4}
+.user{align-self:flex-end;background:#fff;color:#000}
+.bic{align-self:flex-start;background:#1c1c1f;border-left:2px solid #00FFD1}
+.bar{display:flex;gap:8px;padding:12px;border-top:1px solid #ffffff15}
+input{flex:1;background:#000;border:1px solid #ffffff25;padding:12px;border-radius:12px;color:#fff;outline:none;font-family:'JetBrains Mono'}
+#send{width:46px;height:46px;background:#fff;border:none;border-radius:12px;font-weight:800}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header">
     <div class="logo">BIC</div>
-    <div><div style="font-weight:700;letter-spacing:2px">BIC.SYS</div><div id="status">Tocca 🎤 per parlare</div></div>
+    <div><div style="font-weight:800;letter-spacing:2px">BIC.NEON</div><div id="status">PREMI 🎤 E PARLA - SERVE CHROME</div></div>
     <button id="voiceBtn">🎤</button>
   </div>
-  <div class="hint">Dopo aver premuto 🎤 parla. Dì "Ehi BIC" + frase. Es: "Ehi BIC come stai"</div>
+  <div id="debug">LOG: in attesa...</div>
   <div id="chat"></div>
   <div class="bar">
-    <input id="input" placeholder="Scrivi o parla...">
+    <input id="input" placeholder="Scrivi o premi 🎤">
     <button id="send">➤</button>
   </div>
 </div>
 
 <script>
-const chat = document.getElementById('chat');
-const input = document.getElementById('input');
-const sendBtn = document.getElementById('send');
-const voiceBtn = document.getElementById('voiceBtn');
-const statusEl = document.getElementById('status');
+const chat=document.getElementById('chat'), input=document.getElementById('input'), sendBtn=document.getElementById('send'), voiceBtn=document.getElementById('voiceBtn'), statusEl=document.getElementById('status'), debugEl=document.getElementById('debug');
+let mem=JSON.parse(localStorage.getItem('bic_mem')||'[]');
+let rec=null, listening=false, shouldRestart=false;
 
-let mem = JSON.parse(localStorage.getItem('bic_mem')||'[]');
+function log(t){ debugEl.classList.add('show'); debugEl.textContent='LOG: '+t; console.log(t); }
+function add(t,w){ const d=document.createElement('div'); d.className='msg '+w; d.textContent=t; chat.appendChild(d); chat.scrollTop=chat.scrollHeight; if(w==='bic'){ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='it-IT'; speechSynthesis.speak(u);} }
+function answer(q){ mem.push({q}); localStorage.setItem('bic_mem', JSON.stringify(mem.slice(-500))); if(q.toLowerCase().includes('ricordi')) return `Ho ${mem.length} cose tue, ultima: ${mem[mem.length-2]?.q||'nessuna'}`; return `Salvato: "${q}". Me lo ricordo.`; }
+function sendMsg(){ const t=input.value.trim(); if(!t) return; add(t,'user'); input.value=''; setTimeout(()=>add(answer(t),'bic'),300); }
+sendBtn.onclick=sendMsg; input.onkeydown=e=>{ if(e.key==='Enter') sendMsg(); };
 
-function add(t, who){
-  const d=document.createElement('div'); d.className='msg '+who; d.textContent=t;
-  chat.appendChild(d); chat.scrollTop=chat.scrollHeight;
-  if(who==='bic'){ 
-    speechSynthesis.cancel();
-    let u=new SpeechSynthesisUtterance(t); u.lang='it-IT'; speechSynthesis.speak(u);
-  }
-}
-function answer(q){
-  mem.push({q:q, time:Date.now()});
-  localStorage.setItem('bic_mem', JSON.stringify(mem.slice(-500)));
-  const low=q.toLowerCase();
-  if(low.includes('ricordi')) return `Certo! Ho ${mem.length} cose tue salvate. L'ultima era: "${mem[mem.length-2]?.q || 'questa'}"`;
-  if(low.includes('chi sei')) return 'Sono BIC, la tua amica cyber blu. Mi ricordo tutto di te.';
-  return `Ho salvato: "${q}". Ricorderò. Dimmi altro.`;
-}
-function sendMsg(){
-  const t=input.value.trim(); if(!t) return;
-  add(t,'user'); input.value='';
-  setTimeout(()=>add(answer(t),'bic'),300);
-}
-sendBtn.onclick=sendMsg;
-input.onkeydown=e=>{ if(e.key==='Enter') sendMsg(); };
-
-// VOCE SEMPLICE CHE FUNZIONA
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-let rec = null;
-let listening = false;
-
 if(!SR){
-  statusEl.textContent = 'Usa Chrome Android per voce';
-  voiceBtn.style.display='none';
+  statusEl.textContent='APRI CON CHROME ANDROID - VOCE NON SUPPORTATA QUI';
+  add('Stai aprendo BIC dentro WhatsApp/Instagram: lì il microfono è bloccato. Apri il link con Chrome: 3 puntini > Apri in Chrome','bic');
 }else{
-  rec = new SR();
-  rec.lang = 'it-IT';
-  rec.continuous = false; // FONDAMENTALE: false, non true
-  rec.interimResults = false;
-
-  rec.onstart = ()=>{ listening=true; voiceBtn.classList.add('listening'); statusEl.textContent='TI ASCOLTO... PARLA ORA'; };
-  rec.onend = ()=>{ listening=false; voiceBtn.classList.remove('listening'); statusEl.textContent='Tocca 🎤 per parlare'; };
-  rec.onerror = (e)=>{ listening=false; voiceBtn.classList.remove('listening'); statusEl.textContent='Errore: '+e.error+' - ripremi 🎤'; console.log(e); };
-  
-  rec.onresult = (e)=>{
-    let txt = e.results[0][0].transcript.trim();
-    console.log('Sentito:', txt);
-    statusEl.textContent='Hai detto: '+txt;
-    // togli "ehi bic" se c'è, ma manda comunque
-    let clean = txt.toLowerCase().replace('ehi bic','').replace('ehi big','').trim();
-    if(clean.length < 1) clean = txt;
-    input.value = clean;
-    sendMsg();
-  };
-
-  voiceBtn.onclick = async ()=>{
-    if(listening){ try{ rec.stop(); }catch{} return; }
-    try{
-      // Chiede permesso microfono - DEVE essere su https
-      await navigator.mediaDevices.getUserMedia({audio:true});
-      rec.start();
-    }catch(err){
-      alert('Devi dare permesso microfono: clicca sul lucchetto vicino al link e metti Consenti microfono');
-      statusEl.textContent='Permesso microfono negato';
+  rec=new SR(); rec.lang='it-IT'; rec.continuous=true; rec.interimResults=true;
+  rec.onstart=()=>{ listening=true; shouldRestart=true; voiceBtn.classList.add('on'); statusEl.textContent='🔴 TI ASCOLTO - DI "EHI BIC"'; log('Microfono ON - parla ora'); };
+  rec.onend=()=>{ listening=false; voiceBtn.classList.remove('on'); statusEl.textContent='Mic spento - ripremi 🎤'; log('Mic OFF - code: '+ (shouldRestart?' restart' : ' stop')); if(shouldRestart){ setTimeout(()=>{ try{ rec.start(); log('Riavvio automatico...'); }catch(e){ log('Errore restart: '+e.message); } }, 300); } };
+  rec.onerror=(e)=>{ log('ERRORE: '+e.error); statusEl.textContent='Errore: '+e.error; if(e.error==='not-allowed'){ add('Permesso microfono negato. Clicca sul lucchetto > Consenti microfono e ricarica','bic'); shouldRestart=false; } };
+  rec.onresult=(e)=>{
+    let finalText=''; let interim='';
+    for(let i=e.resultIndex; i<e.results.length; i++){ if(e.results[i].isFinal) finalText+=e.results[i][0].transcript+' '; else interim+=e.results[i][0].transcript+' '; }
+    if(interim) log('Sento: '+interim);
+    if(finalText){
+      finalText=finalText.trim(); log('FINALE: '+finalText); statusEl.textContent='Sentito: '+finalText;
+      let low=finalText.toLowerCase();
+      // accetta tutte le varianti
+      if(low.includes('ehi bic')||low.includes('ehi big')||low.includes('hey bic')||low.includes('bic')){
+        let clean=finalText.replace(/ehi bic/gi,'').replace(/ehi big/gi,'').replace(/hey bic/gi,'').replace(/\bbic\b/gi,'').trim();
+        if(clean.length>0){ input.value=clean; sendMsg(); }else{ add('Dimmi tutto, ti ascolto!','bic'); }
+      }else{
+        // se non dice ehi bic, manda comunque
+        input.value=finalText; sendMsg();
+      }
     }
   };
+  voiceBtn.onclick=async()=>{
+    if(listening){ shouldRestart=false; try{ rec.stop(); }catch{} return; }
+    try{
+      log('Chiedo permesso microfono...');
+      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+      stream.getTracks().forEach(t=>t.stop()); // chiudi subito, serve solo per sbloccare
+      shouldRestart=true;
+      rec.start();
+    }catch(err){ log('Permesso negato: '+err.message); alert('Devi dare permesso: lucchetto in alto > Microfono > Consenti'); }
+  };
 }
-
-add(mem.length ? `Bentornato! Ho ${mem.length} ricordi tuoi.` : 'Ciao! Sono BIC. Premi 🎤 e parla, oppure scrivi.','bic');
+add(mem.length?`Bentornato! Ho ${mem.length} ricordi.`:'Ciao! Premi 🎤 e dì "Ehi BIC come stai". Se non funziona, apri con CHROME, non da WhatsApp.','bic');
 </script>
 </body>
 </html>
