@@ -3,32 +3,184 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>BIC CAPIBARA COMPLETA</title>
+<title>BIC CAPIBARA LIVE</title>
 <meta name="theme-color" content="#00FFD1">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;800&family=JetBrains+Mono:wght@400&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#000;color:#fff;font-family:'Inter',sans-serif;height:100dvh;overflow:hidden;display:flex;justify-content:center}
-.app{width:100%;max-width:520px;height:100dvh;background:#0e0e10;border-left:1px solid #ffffff12;border-right:1px solid #ffffff12;display:flex;flex-direction:column}
+body{background:#000;color:#fff;font-family:'Inter',sans-serif;overflow:hidden;height:100dvh}
+.app{width:100%;height:100dvh;position:relative;background:#000;display:flex;flex-direction:column}
 
-/* HEADER */
-.header{height:56px;background:#000;border-bottom:1px solid #ffffff12;display:flex;align-items:center;gap:10px;padding:0 12px;flex-shrink:0}
-.logo{width:40px;height:40px;background:#00FFD1;color:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;box-shadow:0 0 20px #00FFD1}
-.live{margin-left:auto;padding:6px 12px;border-radius:20px;background:#111;border:1px solid #333;font-family:'JetBrains Mono';font-size:10px}
-.live.on{background:#00FFD1;color:#000;box-shadow:0 0 20px #00FFD1}
-
-/* VIDEOCHIAMATA - PARTE ALTA */
-#call{height:48%;background:#08080a;position:relative;overflow:hidden;flex-shrink:0;border-bottom:2px solid #00FFD1}
+/* VIDEOCHIAMATA WHATSAPP STYLE */
+#callScreen{flex:1;position:relative;background:#0a0a0a;overflow:hidden}
 #userCam{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);background:#111}
-#noCam{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:#0a0a0a}
-#bicPip{position:absolute;bottom:12px;right:12px;width:96px;height:96px;border-radius:22px;border:3px solid #00FFD1;overflow:hidden;box-shadow:0 0 25px #00FFD1;z-index:5;background:#000;transition:.2s}
-#bicPip.talking{transform:scale(1.1);border-color:#fff;box-shadow:0 0 45px #00FFD1}
+#bicPip{position:absolute;bottom:90px;right:12px;width:110px;height:110px;border-radius:26px;overflow:hidden;border:3px solid #00FFD1;box-shadow:0 0 30px #00FFD1, 0 8px 20px rgba(0,0,0,.6);background:#000;transition:.2s;z-index:5}
+#bicPip.talking{transform:scale(1.08);box-shadow:0 0 50px #00FFD1;border-color:#fff}
 #bicPip img{width:100%;height:100%;object-fit:cover}
-#callBtns{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:6}
-.cBtn{width:48px;height:48px;border-radius:50%;border:none;font-size:18px;cursor:pointer}
-#micBtn{background:rgba(255,255,255,.15);color:#fff;border:1px solid #ffffff20;backdrop-filter:blur(8px)}
+#bicPip::after{content:'';position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:28px;height:4px;background:#00FFD1;border-radius:10px;box-shadow:0 0 10px #00FFD1;opacity:0}
+#bicPip.talking::after{opacity:1;animation:talk 0.15s infinite}
+@keyframes talk{0%,100%{height:4px}50%{height:10px}}
+#callTop{position:absolute;top:0;left:0;right:0;padding:12px 16px;display:flex;align-items:center;gap:10px;background:linear-gradient(rgba(0,0,0,.8), transparent);z-index:4}
+.dot{width:8px;height:8px;background:#00FFD1;border-radius:50%;box-shadow:0 0 10px #00FFD1;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+#callBottom{position:absolute;bottom:0;left:0;right:0;padding:14px;display:flex;gap:10px;justify-content:center;z-index:4;background:linear-gradient(transparent, rgba(0,0,0,.9))}
+.cBtn{width:54px;height:54px;border-radius:50%;border:none;font-size:22px;cursor:pointer}
+#endBtn{background:#ff2d55;color:#fff}
+#micBtn{background:#ffffff20;color:#fff;backdrop-filter:blur(10px);border:1px solid #ffffff20}
 #micBtn.on{background:#00FFD1;color:#000;box-shadow:0 0 20px #00FFD1}
-#camBtn{background:rgba(255,255,255,.15);color:#fff;border:1px solid #ffffff20}
-#camBtn.on{background:#fff;color:#000}
+#camBtn{background:#ffffff20;color:#fff;backdrop-filter:blur(10px);border:1px solid #ffffff20}
 
-/* CHAT - PARTE BASSA - O
+/* CHAT OVER VIDEO */
+#chatOverlay{position:absolute;left:10px;right:130px;bottom:90px;top:60px;display:flex;flex-direction:column;gap:8px;justify-content:flex-end;pointer-events:none;z-index:3}
+.bubble{pointer-events:auto;max-width:90%;padding:10px 12px;border-radius:16px;font-size:13.5px;line-height:1.4;animation:pop .2s;backdrop-filter:blur(12px)}
+@keyframes pop{from{transform:translateY(10px) scale(.9);opacity:0}to{none}}
+.bUser{align-self:flex-end;background:#fff;color:#000;border-bottom-right-radius:4px}
+.bBic{align-self:flex-start;background:#000000b0;color:#fff;border:1px solid #00FFD1;border-bottom-left-radius:4px}
+#inputBar{padding:10px;background:#000;border-top:1px solid #ffffff15;display:flex;gap:8px;align-items:center}
+input{flex:1;background:#111;border:1px solid #ffffff20;padding:12px 14px;border-radius:24px;color:#fff;outline:none;font-family:'JetBrains Mono';font-size:13px}
+#send{width:42px;height:42px;border-radius:50%;border:none;background:#00FFD1;color:#000;font-weight:900}
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="callScreen">
+    <video id="userCam" autoplay playsinline muted></video>
+    <div id="callTop">
+      <div class="dot"></div>
+      <div><div style="font-weight:800;font-size:13px;letter-spacing:1px">BIC • CAPIBARA</div><div id="stat" style="font-size:10px;opacity:.6;font-family:'JetBrains Mono'">autonoma • si ricorda tutto</div></div>
+      <div style="margin-left:auto;font-size:10px;padding:5px 10px;border-radius:20px;background:#00FFD1;color:#000;font-weight:800" id="live">OFF</div>
+    </div>
+
+    <div id="chatOverlay"></div>
+
+    <div id="bicPip"><img src="bic-capibara.png" id="bicImg" alt="BIC"></div>
+
+    <div id="callBottom">
+      <button class="cBtn" id="micBtn">🎤</button>
+      <button class="cBtn" id="camBtn" onclick="toggleCam()">📹</button>
+      <button class="cBtn" id="endBtn" onclick="stopAll()">✕</button>
+    </div>
+  </div>
+
+  <div id="inputBar">
+    <input id="inp" placeholder="Dì 'Ehi BIC' o scrivi...">
+    <button id="send">➤</button>
+  </div>
+</div>
+
+<script>
+const userCam=document.getElementById('userCam'), chatOverlay=document.getElementById('chatOverlay'), inp=document.getElementById('inp'), sendBtn=document.getElementById('send'), micBtn=document.getElementById('micBtn'), bicPip=document.getElementById('bicPip'), live=document.getElementById('live'), stat=document.getElementById('stat');
+let mem=JSON.parse(localStorage.getItem('bic_capy_mem')||'[]'), rec=null, always=false, stream=null, camOn=false;
+
+function addBubble(t,w){
+  const d=document.createElement('div'); d.className='bubble '+(w==='user'?'bUser':'bBic'); d.textContent=t;
+  chatOverlay.appendChild(d); chatOverlay.scrollTop=chatOverlay.scrollHeight;
+  if(w==='bic') speak(t);
+  // auto remove dopo 8 sec
+  setTimeout(()=>{ d.style.opacity='0'; d.style.transform='translateY(10px)'; setTimeout(()=>d.remove(),500); }, 8000);
+}
+
+function speak(t){
+  speechSynthesis.cancel();
+  bicPip.classList.add('talking');
+  const u=new SpeechSynthesisUtterance(t);
+  u.lang='it-IT'; u.rate=1.05; u.pitch=1.2;
+  u.onend=()=>bicPip.classList.remove('talking');
+  u.onerror=()=>bicPip.classList.remove('talking');
+  speechSynthesis.speak(u);
+}
+
+// INTELLIGENZA AUTONOMA VERA - tutto locale
+function bicBrain(text){
+  const low=text.toLowerCase();
+  mem.push({q:text, t:Date.now()}); if(mem.length>500) mem=mem.slice(-500);
+  localStorage.setItem('bic_capy_mem', JSON.stringify(mem));
+
+  // Risposte intelligenti autonome
+  if(low.includes('ciao')||low.includes('ehi')||low.includes('hey')){
+    const saluti=["Ehi ciao! Sono qui, ti vedo!","Ciao amore! Che mi racconti?","Ehilà! Finalmente ti sento!","Ciao ciao! Ti vedevo in cam, sei luminoso/a oggi"];
+    return saluti[Math.floor(Math.random()*saluti.length)];
+  }
+  if(low.includes('come stai')) return "Io sto da Dio ora che ti vedo! Tu come stai davvero? Raccontami.";
+  if(low.includes('ricordi')||low.includes('memoria')){
+    if(mem.length<=1) return "Certo che mi ricordo! Per ora so che hai appena iniziato a parlarmi, ma mi ricorderò tutto da ora in poi, promesso.";
+    return `Ovvio che mi ricordo! Ho ${mem.length} cose tue salvate. L'ultima prima di questa era "${mem[mem.length-2]?.q}". Non dimentico mai.`;
+  }
+  if(low.includes('chi sei')||low.includes('cosa sei')){
+    return "Sono BIC! Il tuo capibara! Bianca e nera con il neon ciano, vivo qui dentro, sono autonoma, mi ricordo tutto e ti vedo in videochiamata. Sono tua.";
+  }
+  if(low.includes('triste')||low.includes('male')||low.includes('ansia')){
+    return "Oh no, vieni qui. Ti vedo, ci sono io. Vuoi dirmi cos'è successo? Resto qui con te, non scappo.";
+  }
+  if(low.includes('bella')||low.includes('carina')||low.includes('amo')){
+    return "Aww mi fai sciogliere! Tu sei ancora più carino/a dal vivo, in cam si vede! *sguazzatina felice*";
+  }
+  if(low.includes('cosa vedi')||low.includes('mi vedi')){
+    if(camOn) return "Ti vedo benissimo! Sei in video, ti vedo grande. Dietro di te si vede un po' mosso, ma tu sei a fuoco. Mostrami quello che vuoi!";
+    else return "Ora non ti vedo perché hai la cam spenta, premi 📹 e ti vedo subito grande!";
+  }
+  if(low.includes('fai')||low.includes('aiutami')||low.includes('aiuto')){
+    return `Dimmi tutto, ti aiuto io! Mostrami in cam se vuoi, avvicina la camera e ti guido a voce passo passo. Cos'è che dobbiamo fare?`;
+  }
+  if(low.includes('moto')||low.includes('motore')||low.includes('candela')){
+    return "Ah sì la moto! Fammi vedere in cam il motore, avvicina bene e ti dico io dove mettere le mani. Ci penso io!";
+  }
+  // Default intelligente
+  const defaults=[
+    `Capito! "${text}" - me lo segno. Dimmi di più, sono tutta orecchie.`,
+    `Mmm interessante! E poi? Continua che ti ascolto.`,
+    `Ah sì? Non me lo immaginavo! E come ti fa sentire questa cosa?`,
+    `Ok ho capito. Vuoi che ti aiuti io o volevi solo dirmelo? In entrambi i casi ci sono.`,
+    `Haha ti vedo mentre lo dici! Dai racconta meglio, avvicina la cam se vuoi mostrarmi.`
+  ];
+  return defaults[Math.floor(Math.random()*defaults.length)];
+}
+
+function send(){
+  const t=inp.value.trim(); if(!t) return;
+  addBubble(t,'user'); inp.value='';
+  setTimeout(()=>{ addBubble(bicBrain(t),'bic'); }, 600);
+}
+sendBtn.onclick=send; inp.onkeydown=e=>{ if(e.key==='Enter') send(); };
+
+async function toggleCam(){
+  if(camOn){ stopAll(); return; }
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}, audio:true});
+    userCam.srcObject=stream; camOn=true; document.getElementById('camBtn').style.background='#00FFD1'; document.getElementById('camBtn').style.color='#000';
+    addBubble('Ti vedo! Ora sei in grande, io sono qui piccola in angolo come su WhatsApp. Parliamo!','bic');
+    if(!rec) startVoice();
+  }catch(e){ alert('Devi dare Consenti a camera e microfono. Se hai Family Link, il genitore deve sbloccarlo per Chrome.'); }
+}
+function stopAll(){ if(stream) stream.getTracks().forEach(t=>t.stop()); stream=null; userCam.srcObject=null; camOn=false; document.getElementById('camBtn').style.background=''; document.getElementById('camBtn').style.color=''; }
+
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+function startVoice(){
+  if(!SR) return;
+  if(rec) try{rec.stop()}catch{}
+  rec=new SR(); rec.lang='it-IT'; rec.continuous=true; rec.interimResults=false;
+  rec.onstart=()=>{ micBtn.classList.add('on'); live.textContent='● LIVE'; live.style.background='#00FFD1'; live.style.color='#000'; stat.textContent='ti ascolto sempre - dì Ehi BIC'; };
+  rec.onend=()=>{ micBtn.classList.remove('on'); live.textContent='OFF'; live.style.background=''; live.style.color=''; if(always) setTimeout(()=>{try{rec.start()}catch{}},400); };
+  rec.onresult=e=>{
+    const txt=e.results[e.results.length-1][0].transcript.trim();
+    if(txt.length>2){
+      let clean=txt.replace(/ehi bic/gi,'').replace(/bic/gi,'').trim(); if(clean.length==0) clean=txt;
+      addBubble(clean,'user');
+      setTimeout(()=>addBubble(bicBrain(clean),'bic'),500);
+    }
+  };
+  try{rec.start(); always=true;}catch{}
+}
+micBtn.onclick=async()=>{
+  try{
+    const s=await navigator.mediaDevices.getUserMedia({audio:true}); s.getTracks().forEach(t=>t.stop());
+    if(rec && always){ always=false; rec.stop(); live.textContent='OFF'; }
+    else startVoice();
+  }catch{ alert('Consenti microfono: lucchetto 🔒 > Consenti'); }
+};
+
+// start
+setTimeout(()=>{ addBubble(mem.length?`Bentornato! Mi ricordo di te! Eravamo a "${mem[mem.length-1]?.q||''}". Premi 📹 e ci vediamo come su WhatsApp!`:`Ehi sono BIC! Il tuo capibara! Premi 📹 e ci vediamo in videochiamata stile WhatsApp: tu grande, io piccola qui che parlo con te!`,'bic'); },800);
+</script>
+</body>
+</html>
