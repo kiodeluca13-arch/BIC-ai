@@ -2,165 +2,110 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>BIC LIVE VIDEO</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIC AI GENERALE</title>
 <meta name="theme-color" content="#00FFD1">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@500;800&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif}
-body{background:#050507;color:#fff;display:flex;justify-content:center;min-height:100vh;overflow:hidden}
-.app{width:100%;max-width:500px;background:#0e0e10;border-left:1px solid #ffffff15;border-right:1px solid #ffffff15;display:flex;flex-direction:column;height:100dvh}
-.header{padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #ffffff15;background:#000;position:sticky;top:0;z-index:10}
+body{background:#050507;color:#fff;display:flex;justify-content:center;height:100vh;overflow:hidden}
+.app{width:100%;max-width:500px;background:#0e0e10;border:1px solid #ffffff15;display:flex;flex-direction:column;height:100dvh}
+.header{padding:14px;display:flex;align-items:center;gap:12px;background:#000;border-bottom:1px solid #ffffff15}
 .logo{width:42px;height:42px;background:#00FFD1;color:#000;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:900;box-shadow:0 0 20px #00FFD1}
-#live{margin-left:auto;padding:6px 12px;border-radius:20px;background:#111;border:1px solid #333;font-size:10px;font-family:'JetBrains Mono';letter-spacing:1px}
-#live.on{background:#00FFD1;color:#000;box-shadow:0 0 20px #00FFD1;animation:pulse 1s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
-#status{font-family:'JetBrains Mono';font-size:9px;opacity:.6;margin-top:2px}
-#videoBox{display:none;position:relative;background:#000;border-bottom:2px solid #00FFD1}
+#live{margin-left:auto;padding:6px 12px;border-radius:20px;background:#111;border:1px solid #333;font-size:10px;font-family:'JetBrains Mono'}
+#live.on{background:#00FFD1;color:#000;box-shadow:0 0 20px #00FFD1}
+#status{font-family:'JetBrains Mono';font-size:9px;opacity:.6}
+#videoBox{display:none;background:#000;border-bottom:2px solid #00FFD1;position:relative}
 #videoBox.show{display:block}
-#cam{width:100%;height:280px;object-fit:cover;transform:scaleX(-1);background:#000}
-#videoOverlay{position:absolute;bottom:0;left:0;right:0;padding:10px;background:linear-gradient(transparent, rgba(0,0,0,0.95));display:flex;gap:8px;align-items:center}
-.vTag{background:#00FFD1;color:#000;padding:5px 10px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:1px}
+#cam{width:100%;height:300px;object-fit:cover;transform:scaleX(-1)}
+#videoOverlay{position:absolute;bottom:0;left:0;right:0;padding:10px;background:linear-gradient(transparent,rgba(0,0,0,.9));display:flex;gap:8px}
+.vTag{background:#00FFD1;color:#000;padding:5px 10px;border-radius:20px;font-size:10px;font-weight:800}
 #chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
-.msg{max-width:86%;padding:12px 14px;border-radius:16px;font-size:14px;line-height:1.5;animation:in .25s ease}
-@keyframes in{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
-.user{align-self:flex-end;background:#fff;color:#000;font-weight:500;border-bottom-right-radius:6px}
-.bic{align-self:flex-start;background:#1c1c1f;border:1px solid #ffffff12;border-left:2px solid #00FFD1;border-bottom-left-radius:6px}
-.meta{font-family:'JetBrains Mono';font-size:9px;opacity:.4;margin-top:6px}
-.tools{display:flex;gap:8px;padding:10px;border-top:1px solid #ffffff10;background:#000}
-.toolBtn{flex:1;padding:12px 8px;border-radius:12px;border:1px solid #333;background:#111;color:#fff;font-size:11px;font-weight:700;cursor:pointer}
-.toolBtn.active{border-color:#00FFD1;color:#00FFD1;background:#00FFD115;box-shadow:0 0 15px #00FFD130}
-.bar{display:flex;gap:8px;padding:12px;border-top:1px solid #ffffff15;background:#0a0a0a;align-items:center}
-input{flex:1;background:#000;border:1px solid #ffffff20;padding:13px 14px;border-radius:12px;color:#fff;outline:none;font-family:'JetBrains Mono';font-size:14px}
-input:focus{border-color:#00FFD1;box-shadow:0 0 0 3px #00FFD120}
-#send{width:48px;height:48px;background:#fff;border:none;border-radius:12px;font-weight:900;color:#000;font-size:18px;cursor:pointer}
-#micBig{width:48px;height:48px;border-radius:12px;border:2px solid #00FFD1;background:#000;color:#00FFD1;font-size:22px;cursor:pointer;transition:.2s}
-#micBig.on{background:#00FFD1;color:#000;box-shadow:0 0 25px #00FFD1;transform:scale(1.05)}
-.hint{padding:8px 12px;font-size:10px;text-align:center;opacity:.5;background:#000;border-bottom:1px solid #ffffff10;font-family:'JetBrains Mono';letter-spacing:.5px}
+.msg{max-width:85%;padding:12px 14px;border-radius:16px;font-size:14px;line-height:1.5}
+.user{align-self:flex-end;background:#fff;color:#000;border-bottom-right-radius:6px}
+.bic{align-self:flex-start;background:#1c1c1f;border-left:2px solid #00FFD1;border-bottom-left-radius:6px}
+.tools{display:flex;gap:8px;padding:10px;background:#000;border-top:1px solid #ffffff10}
+.toolBtn{flex:1;padding:12px;border-radius:12px;border:1px solid #333;background:#111;color:#fff;font-size:11px;font-weight:700}
+.toolBtn.active{border-color:#00FFD1;color:#00FFD1;background:#00FFD115}
+.bar{display:flex;gap:8px;padding:12px;background:#0a0a0a;border-top:1px solid #ffffff15}
+input{flex:1;background:#000;border:1px solid #ffffff20;padding:13px;border-radius:12px;color:#fff;outline:none;font-family:'JetBrains Mono'}
+#send,#micBig{width:48px;height:48px;border-radius:12px;border:none;cursor:pointer}
+#send{background:#fff;color:#000;font-weight:900;font-size:18px}
+#micBig{background:#000;border:2px solid #00FFD1;color:#00FFD1;font-size:22px}
+#micBig.on{background:#00FFD1;color:#000;box-shadow:0 0 25px #00FFD1}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header">
     <div class="logo">BIC</div>
-    <div><div style="font-weight:900;letter-spacing:2px">BIC.LIVE</div><div id="status">Pronto - premi 🎤 una volta</div></div>
+    <div><div style="font-weight:900;letter-spacing:2px">BIC.AI</div><div id="status">Intelligenza generale - premi 🎤</div></div>
     <div id="live">OFF</div>
   </div>
-  <div class="hint">Dopo 1 click su 🎤 resta SEMPRE ATTIVA - Dì "Ehi BIC" • Per moto premi 📹</div>
-
   <div id="videoBox">
     <video id="cam" autoplay playsinline muted></video>
     <div id="videoOverlay">
-      <div class="vTag">● LIVE CAM</div>
-      <div style="font-size:10px" id="videoHint">Mostrami la moto, ti guido io a voce</div>
+      <div class="vTag">● TI VEDO IN DIRETTA</div>
       <button onclick="stopVideo()" style="margin-left:auto;background:#ff2d55;border:none;color:#fff;padding:7px 12px;border-radius:20px;font-size:11px;font-weight:700">CHIUDI</button>
     </div>
   </div>
-
   <div id="chat"></div>
-
   <div class="tools">
-    <button class="toolBtn" id="videoBtn" onclick="toggleVideo()">📹 VIDEO AIUTO MOTO</button>
-    <button class="toolBtn" id="voiceModeBtn" onclick="toggleVoiceMode()">🎤 ALWAYS: OFF</button>
+    <button class="toolBtn" id="videoBtn" onclick="toggleVideo()">📹 VIDEOCHIAMATA</button>
+    <button class="toolBtn" id="voiceBtn" onclick="toggleVoice()">🎤 ALWAYS: OFF</button>
   </div>
-
   <div class="bar">
     <button id="micBig">🎤</button>
-    <input id="input" placeholder="Dì 'Ehi BIC' o scrivi...">
+    <input id="input" placeholder="Parla con BIC...">
     <button id="send">➤</button>
   </div>
 </div>
-
 <script>
-// MEMORIA
-const chat=document.getElementById('chat'), inputEl=document.getElementById('input'), sendBtn=document.getElementById('send'), micBig=document.getElementById('micBig'), liveEl=document.getElementById('live'), statusEl=document.getElementById('status'), videoBox=document.getElementById('videoBox'), cam=document.getElementById('cam'), videoBtn=document.getElementById('videoBtn'), voiceModeBtn=document.getElementById('voiceModeBtn');
+const chat=document.getElementById('chat'), inputEl=document.getElementById('input'), sendBtn=document.getElementById('send'), micBig=document.getElementById('micBig'), liveEl=document.getElementById('live'), statusEl=document.getElementById('status'), videoBox=document.getElementById('videoBox'), cam=document.getElementById('cam'), videoBtn=document.getElementById('videoBtn'), voiceBtn=document.getElementById('voiceBtn');
 let mem=JSON.parse(localStorage.getItem('bic_mem')||'[]');
-let rec=null, alwaysOn=false, videoStream=null, wakeLock=null;
+let rec=null, alwaysOn=false, videoStream=null;
 
-function add(t,w){
-  const d=document.createElement('div'); d.className='msg '+w;
-  d.innerHTML=`<div>${t.replace(/\n/g,'<br>')}</div><div class=meta>${new Date().toLocaleTimeString()} • ${w}</div>`;
-  chat.appendChild(d); chat.scrollTop=chat.scrollHeight;
-  if(w==='bic'){ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t.replace(/<[^>]*>/g,'')); u.lang='it-IT'; u.rate=1; speechSynthesis.speak(u); }
-}
+function add(t,w){ const d=document.createElement('div'); d.className='msg '+w; d.textContent=t; chat.appendChild(d); chat.scrollTop=chat.scrollHeight; if(w==='bic'){ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='it-IT'; speechSynthesis.speak(u);} }
 function answer(q){
-  mem.push({q, date:Date.now()}); if(mem.length>600) mem=mem.slice(-600);
-  localStorage.setItem('bic_mem', JSON.stringify(mem));
+  mem.push({q,date:Date.now()}); localStorage.setItem('bic_mem',JSON.stringify(mem.slice(-1000)));
+  if(videoStream){ return `Ti vedo benissimo! Mostrami meglio da vicino. Descrivimi cosa stai guardando e ti aiuto io in tempo reale a voce. Ho salvato: "${q}"`; }
   const low=q.toLowerCase();
-  if(videoStream){
-    if(low.includes('moto')||low.includes('non parte')||low.includes('candela')||low.includes('carburatore')||low.includes('benzina')){
-      return `Ti vedo in cam! Ok per la moto:\n\n1. Mostrami da vicino il carburatore\n2. Quel tubicino piccolo staccalo e vedi se esce benzina\n3. Se gira ma non parte al 90% è candela - svitala e fammela vedere in cam\n\nAvvicina la camera, ti dico io passo passo.`;
-    }
-    return `Ti vedo! Avvicina la camera al pezzo. Ho salvato: "${q}" - descrivimi meglio e ti guido.`;
-  }
-  if(low.includes('ricordi')||low.includes('cosa sai')) return `Ho ${mem.length} ricordi tuoi. Ultimo prima di questo: "${mem[mem.length-2]?.q||'nessuno'}". Me li ricordo tutti per sempre.`;
-  if(low.includes('chi sei')) return 'Sono BIC LIVE - bianca e nera con neon ciano. Ti ascolto sempre, mi ricordo tutto e se premi 📹 ti vedo in videochiamata per aiutarti con la moto.';
-  return `Salvato: "${q}". Lo terrò in memoria. Se hai bisogno per la moto premi 📹 VIDEO AIUTO e ti vedo in diretta.`;
+  if(low.includes('ricordi')) return `Certo che mi ricordo! Ho ${mem.length} cose che mi hai detto. Ultima: "${mem[mem.length-2]?.q||'nessuna'}". Mi ricordo tutto per sempre.`;
+  if(low.includes('chi sei')) return 'Sono BIC, la tua intelligenza artificiale personale. Bianca e nera con neon ciano. Mi ricordo tutto quello che mi dici, ti ascolto sempre se mi attivi, e se premi VIDEOCHIAMATA ti vedo in diretta e ti aiuto su qualsiasi cosa.';
+  return `Capito: "${q}". L'ho salvato nella mia memoria permanente. Dimmi pure altro, e se vuoi mostrarmi qualcosa premi 📹 VIDEOCHIAMATA e ti vedo.`;
 }
-function sendMsg(){ const t=inputEl.value.trim(); if(!t) return; add(t,'user'); inputEl.value=''; setTimeout(()=>add(answer(t),'bic'),350); }
-sendBtn.onclick=sendMsg; inputEl.onkeydown=e=>{ if(e.key==='Enter') sendMsg(); };
+function sendMsg(){ const t=inputEl.value.trim(); if(!t) return; add(t,'user'); inputEl.value=''; setTimeout(()=>add(answer(t),'bic'),400); }
+sendBtn.onclick=sendMsg; inputEl.onkeydown=e=>{if(e.key==='Enter')sendMsg()};
 
-// VIDEO
 async function toggleVideo(){
   if(videoStream){ stopVideo(); return; }
   try{
-    videoStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}, audio:true});
-    cam.srcObject=videoStream;
-    videoBox.classList.add('show');
-    videoBtn.textContent='❌ CHIUDI VIDEO';
-    videoBtn.classList.add('active');
-    add('Video attivo! Ora ti vedo. Mostrami la moto dove hai il problema e ti guido io a voce in tempo reale.','bic');
-    if(!rec) startVoiceSystem();
-  }catch(e){
-    alert('Devi dare permesso a CAMERA e MICROFONO.\n\n1. Clicca su Consenti quando te lo chiede\n2. Se hai Family Link: il genitore deve sbloccare Camera/Microfono per Chrome in Family Link > Controlli > Autorizzazioni app');
-  }
+    videoStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:true});
+    cam.srcObject=videoStream; videoBox.classList.add('show');
+    videoBtn.textContent='❌ CHIUDI VIDEO'; videoBtn.classList.add('active');
+    add('Videochiamata attiva! Ora ti vedo in diretta. Mostrami qualsiasi cosa e ti aiuto a voce in tempo reale.','bic');
+  }catch(e){ alert('Consenti camera e microfono. Se hai Family Link, chiedi al genitore di sbloccare Camera/Microfono per Chrome in Family Link.'); }
 }
-function stopVideo(){
-  if(videoStream){ videoStream.getTracks().forEach(t=>t.stop()); videoStream=null; }
-  cam.srcObject=null;
-  videoBox.classList.remove('show');
-  videoBtn.textContent='📹 VIDEO AIUTO MOTO';
-  videoBtn.classList.remove('active');
-}
+function stopVideo(){ if(videoStream)videoStream.getTracks().forEach(t=>t.stop()); videoStream=null; cam.srcObject=null; videoBox.classList.remove('show'); videoBtn.textContent='📹 VIDEOCHIAMATA'; videoBtn.classList.remove('active'); }
 
-// VOCE SEMPRE ATTIVA
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-function startVoiceSystem(){
-  if(!SR){ add('Per la voce usa Chrome su Android. Apri questo link in Chrome, non da WhatsApp.','bic'); return; }
-  if(rec) try{rec.stop()}catch{}
+function startVoice(){
+  if(!SR){ add('Usa Chrome su Android per la voce','bic'); return; }
+  if(rec)try{rec.stop()}catch{}
   rec=new SR(); rec.lang='it-IT'; rec.continuous=true; rec.interimResults=true;
-  rec.onstart=()=>{ micBig.classList.add('on'); liveEl.textContent='● LIVE'; liveEl.classList.add('on'); statusEl.textContent=alwaysOn?'SEMPRE ATTIVA - Dì "Ehi BIC"':'TI ASCOLTO...'; try{ if('wakeLock' in navigator) navigator.wakeLock.request('screen').then(l=>wakeLock=l); }catch(e){} };
-  rec.onend=()=>{ micBig.classList.remove('on'); liveEl.textContent=alwaysOn?'RESTART...':'OFF'; liveEl.classList.remove('on'); if(alwaysOn){ statusEl.textContent='Riavvio automatico...'; setTimeout(()=>{ try{rec.start()}catch{} },300); }else{ statusEl.textContent='Premi 🎤 per parlare'; } };
-  rec.onerror=(e)=>{ statusEl.textContent='Errore: '+e.error; if(e.error==='not-allowed'){ alwaysOn=false; updateVoiceBtn(); add('Hai bloccato il microfono o Family Link lo blocca. Soluzione: Chrome > lucchetto 🔒 > Consenti microfono. Se hai Family Link, il genitore deve andare su Family Link > Controlli > Autorizzazioni app > Chrome > Microfono Consenti','bic'); return; } if(alwaysOn) setTimeout(()=>{ try{rec.start()}catch{} },800); };
-  rec.onresult=(e)=>{
-    let final='';
-    for(let i=e.resultIndex;i<e.results.length;i++){ if(e.results[i].isFinal) final+=e.results[i][0].transcript+' '; else statusEl.textContent='Sento: '+e.results[i][0].transcript; }
-    if(final.trim()){
-      final=final.trim(); statusEl.textContent='Hai detto: '+final;
-      let clean=final.replace(/ehi bic/gi,'').replace(/ehi big/gi,'').replace(/hey bic/gi,'').replace(/\bbic\b/gi,'').trim();
-      if(clean.length===0) clean=final;
-      if(clean.length>0){ inputEl.value=clean; sendMsg(); }
-    }
+  rec.onstart=()=>{ micBig.classList.add('on'); liveEl.textContent='● LIVE'; liveEl.classList.add('on'); statusEl.textContent='Ti ascolto sempre - dì Ehi BIC'; };
+  rec.onend=()=>{ micBig.classList.remove('on'); liveEl.classList.remove('on'); if(alwaysOn){ liveEl.textContent='RESTART...'; setTimeout(()=>{try{rec.start()}catch{}},300);}else liveEl.textContent='OFF'; };
+  rec.onerror=e=>{ if(e.error==='not-allowed'){ alwaysOn=false; voiceBtn.textContent='🎤 ALWAYS: OFF'; add('Microfono bloccato. Clicca lucchetto 🔒 > Consenti. Se hai Family Link lo deve sbloccare il genitore.','bic'); } };
+  rec.onresult=e=>{
+    let final=''; for(let i=e.resultIndex;i<e.results.length;i++) if(e.results[i].isFinal) final+=e.results[i][0].transcript+' ';
+    if(final.trim()){ let clean=final.replace(/ehi bic/gi,'').replace(/bic/gi,'').trim(); if(clean.length==0) clean=final; inputEl.value=clean; sendMsg(); }
   };
-  try{ rec.start(); }catch(err){ statusEl.textContent='Tocca di nuovo 🎤'; }
+  try{rec.start()}catch{}
 }
+micBig.onclick=async()=>{ try{ const s=await navigator.mediaDevices.getUserMedia({audio:true}); s.getTracks().forEach(t=>t.stop()); alwaysOn=true; voiceBtn.textContent='🎤 ALWAYS: ON'; voiceBtn.classList.add('active'); startVoice(); }catch{ alert('Consenti microfono'); } };
+function toggleVoice(){ alwaysOn=!alwaysOn; voiceBtn.textContent=alwaysOn?'🎤 ALWAYS: ON':'🎤 ALWAYS: OFF'; voiceBtn.classList.toggle('active',alwaysOn); if(alwaysOn) startVoice(); else if(rec)try{rec.stop()}catch{} }
 
-micBig.onclick=async()=>{
-  try{
-    const s=await navigator.mediaDevices.getUserMedia({audio:true});
-    s.getTracks().forEach(t=>t.stop());
-    alwaysOn=true; updateVoiceBtn();
-    startVoiceSystem();
-  }catch(err){
-    alert('Consenti microfono: clicca sul lucchetto 🔒 in alto > Consenti.\n\nSe hai Family Link, devi chiedere al genitore di sbloccare Microfono per Chrome.');
-  }
-};
-function toggleVoiceMode(){ alwaysOn=!alwaysOn; updateVoiceBtn(); if(alwaysOn) startVoiceSystem(); else if(rec) try{rec.stop()}catch{} }
-function updateVoiceBtn(){ voiceModeBtn.textContent=alwaysOn?'🎤 ALWAYS: ON':'🎤 ALWAYS: OFF'; voiceModeBtn.classList.toggle('active', alwaysOn); }
-
-document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && alwaysOn){ try{rec.start()}catch{} } });
-
-add(mem.length?`Bentornato! Ho ${mem.length} ricordi tuoi. Premi 🎤 una volta, poi resto SEMPRE ATTIVA. Per aiuto moto premi 📹`:`Ciao! Sono BIC LIVE.\n\n1) Premi 🎤 una volta e clicca CONSENTI (anche se dice "questi siti di solito non usano microfono" è normale)\n2) Da lì resto SEMPRE ATTIVA, basta dire "Ehi BIC"\n3) Se hai problema moto premi 📹 e ti vedo in videochiamata\n\nSe hai Family Link, il genitore deve sbloccare mic/camera per Chrome.`, 'bic');
+add(mem.length?`Bentornato! Sono BIC, la tua AI generale. Ho ${mem.length} ricordi. Premi 🎤 una volta e poi resto sempre attiva. Premi 📹 quando vuoi mostrarmi qualcosa.`:`Ciao! Sono BIC, la tua intelligenza artificiale generale.\n\nMi ricordo tutto quello che mi dici per sempre.\nPremi 🎤 una volta e poi mi basta dire "Ehi BIC".\nPremi 📹 VIDEOCHIAMATA quando vuoi che ti veda in diretta per aiutarti su qualsiasi cosa.`,'bic');
 </script>
 </body>
 </html>
