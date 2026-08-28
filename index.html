@@ -2,108 +2,264 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BIC - Amica che ti consola</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BIC • QI 190 • Amica Vera</title>
 <meta name="theme-color" content="#00FFD1">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#050507;color:#fff;display:flex;justify-content:center;height:100vh;font-family:'Inter',sans-serif}
-.app{width:100%;max-width:500px;background:#0e0e10;border:1px solid #ffffff12;display:flex;flex-direction:column;height:100dvh}
-.header{padding:14px 16px;display:flex;gap:12px;align-items:center;background:#000;border-bottom:1px solid #ffffff15}
-.logo{width:42px;height:42px;background:#00FFD1;color:#000;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;box-shadow:0 0 20px #00FFD1}
-#videoBox{display:none;background:#000;border-bottom:2px solid #00FFD1;position:relative}
+body{background:#050507;color:#fff;display:flex;justify-content:center;height:100vh;font-family:'Inter',sans-serif;overflow:hidden}
+.app{width:100%;max-width:520px;background:#0e0e10;border-left:1px solid #ffffff12;border-right:1px solid #ffffff12;display:flex;flex-direction:column;height:100dvh;position:relative}
+.header{padding:14px 16px;display:flex;gap:12px;align-items:center;background:#000;border-bottom:1px solid #ffffff15;flex-shrink:0}
+.logo{width:44px;height:44px;background:#00FFD1;color:#000;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;box-shadow:0 0 25px #00FFD1AA}
+.header-title{font-weight:800;letter-spacing:1.5px;font-size:14px}
+.header-sub{font-size:10px;opacity:.5;font-family:'JetBrains Mono';margin-top:2px}
+#videoBox{display:none;background:#000;border-bottom:2px solid #00FFD1;position:relative;flex-shrink:0}
 #videoBox.show{display:block}
-#cam{width:100%;height:300px;object-fit:cover;transform:scaleX(-1)}
-#chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
-.msg{max-width:86%;padding:13px 15px;border-radius:18px;font-size:14.5px;line-height:1.5;white-space:pre-wrap}
-.user{align-self:flex-end;background:#fff;color:#000;border-bottom-right-radius:6px}
-.bic{align-self:flex-start;background:#1c1c1f;border-left:2px solid #00FFD1;border-bottom-left-radius:6px}
-.typing{font-size:12px;opacity:.5;padding:4px 10px;font-family:'JetBrains Mono'}
-.tools{display:flex;gap:8px;padding:10px;background:#000;border-top:1px solid #ffffff10}
-.btn{flex:1;padding:12px;border-radius:12px;border:1px solid #333;background:#111;color:#fff;font-weight:700;font-size:11px}
-.bar{display:flex;gap:8px;padding:12px;background:#0a0a0a;border-top:1px solid #ffffff15;align-items:center}
-input{flex:1;background:#000;border:1px solid #ffffff20;padding:13px 14px;border-radius:12px;color:#fff;outline:none;font-family:'JetBrains Mono';font-size:14px}
-#send,#mic{width:48px;height:48px;border-radius:12px;border:none;cursor:pointer;font-size:20px}
+#cam{width:100%;height:320px;object-fit:cover;transform:scaleX(-1);display:block}
+.video-overlay{position:absolute;bottom:0;left:0;right:0;padding:10px;display:flex;align-items:center;background:linear-gradient(transparent,rgba(0,0,0,.9))}
+#chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+.msg{max-width:86%;padding:13px 15px;border-radius:18px;font-size:14.8px;line-height:1.55;white-space:pre-wrap;word-break:break-word;animation:pop .25s ease}
+@keyframes pop{from{transform:translateY(8px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+.user{align-self:flex-end;background:#fff;color:#000;border-bottom-right-radius:6px;font-weight:500}
+.bic{align-self:flex-start;background:#1a1a1f;border:1px solid #ffffff12;border-left:2px solid #00FFD1;border-bottom-left-radius:6px}
+.typing{font-size:11px;opacity:.6;padding:2px 16px 6px;font-family:'JetBrains Mono';flex-shrink:0}
+.tools{display:flex;gap:8px;padding:10px;background:#000;border-top:1px solid #ffffff10;flex-shrink:0}
+.btn{flex:1;padding:12px 10px;border-radius:12px;border:1px solid #2a2a2e;background:#111;color:#fff;font-weight:700;font-size:11px;cursor:pointer;transition:.2s}
+.btn.active{border-color:#00FFD1;color:#00FFD1;background:#00FFD115;box-shadow:0 0 15px #00FFD115 inset}
+.bar{display:flex;gap:8px;padding:12px;background:#0a0a0a;border-top:1px solid #ffffff15;align-items:center;flex-shrink:0}
+input{flex:1;background:#000;border:1px solid #ffffff20;padding:14px 14px;border-radius:12px;color:#fff;outline:none;font-family:'JetBrains Mono';font-size:14px}
+input:focus{border-color:#00FFD1}
+#send,#mic{width:50px;height:50px;border-radius:12px;border:none;cursor:pointer;font-size:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 #send{background:#fff;color:#000;font-weight:900}
+#send:active{transform:scale(.95)}
 #mic{background:#000;border:2px solid #00FFD1;color:#00FFD1}
-#mic.on{background:#00FFD1;color:#000}
+#mic.on{background:#00FFD1;color:#000;box-shadow:0 0 20px #00FFD1;animation:pulse 1.5s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #00FFD1AA}70%{box-shadow:0 0 0 10px transparent}100%{box-shadow:0 0 0 0 transparent}}
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="header"><div class="logo">BIC</div><div><div style="font-weight:900;letter-spacing:2px">BIC • LA TUA AMICA</div><div style="font-size:10px;opacity:.5;font-family:'JetBrains Mono'">ti consola • parla dei tuoi interessi • sa tutto</div></div></div>
-  <div id="videoBox"><video id="cam" autoplay playsinline muted></video><div style="position:absolute;bottom:0;left:0;right:0;padding:10px;display:flex;background:linear-gradient(transparent,rgba(0,0,0,.9))"><div style="background:#00FFD1;color:#000;padding:5px 10px;border-radius:20px;font-size:10px;font-weight:800">● TI VEDO</div><button onclick="stopVideo()" style="margin-left:auto;background:#ff2d55;border:none;color:#fff;padding:6px 12px;border-radius:20px;font-size:11px">CHIUDI</button></div></div>
+  <div class="header">
+    <div class="logo">BIC</div>
+    <div>
+      <div class="header-title">BIC • QI 190</div>
+      <div class="header-sub">geniale ma ti parla come migliore amica • voce naturale</div>
+    </div>
+  </div>
+
+  <div id="videoBox">
+    <video id="cam" autoplay playsinline muted></video>
+    <div class="video-overlay">
+      <div style="background:#00FFD1;color:#000;padding:5px 10px;border-radius:20px;font-size:10px;font-weight:800">● TI VEDO • TI SENTO</div>
+      <button onclick="stopVideo()" style="margin-left:auto;background:#ff2d55;border:none;color:#fff;padding:7px 14px;border-radius:20px;font-size:11px;font-weight:700">CHIUDI</button>
+    </div>
+  </div>
+
   <div id="chat"></div>
-  <div id="typing" class="typing" style="display:none">BIC sta scrivendo...</div>
-  <div class="tools"><button class="btn" id="vBtn" onclick="toggleVideo()">📹 VEDIAMOCI</button><button class="btn" id="aBtn" onclick="toggleAlways()">🎤 PARLAMI SEMPRE</button></div>
-  <div class="bar"><button id="mic">🎤</button><input id="inp" placeholder="Dimmi come stai davvero..."><button id="send">➤</button></div>
+  <div id="typing" class="typing" style="display:none">BIC sta ragionando...</div>
+
+  <div class="tools">
+    <button class="btn" id="vBtn" onclick="toggleVideo()">📹 VEDIAMOCI IN VIDEO</button>
+    <button class="btn" id="aBtn" onclick="toggleAlways()">🎤 MODALITÀ SEMPRE ON</button>
+  </div>
+
+  <div class="bar">
+    <button id="mic" title="Parla">🎤</button>
+    <input id="inp" placeholder="Chiedimi qualsiasi cosa, anche la più difficile...">
+    <button id="send" title="Invia">➤</button>
+  </div>
 </div>
+
 <script>
+// ===== STORAGE =====
+let mem = JSON.parse(localStorage.getItem('bic_mem_v2')||'[]');
+let history = JSON.parse(localStorage.getItem('bic_chat')||'[]');
+let profile = JSON.parse(localStorage.getItem('bic_profile')||'{}');
+let interests = JSON.parse(localStorage.getItem('bic_interests')||'[]');
+
 const chat=document.getElementById('chat'), inp=document.getElementById('inp'), sendBtn=document.getElementById('send'), micBtn=document.getElementById('mic'), typing=document.getElementById('typing'), vBtn=document.getElementById('vBtn'), aBtn=document.getElementById('aBtn'), cam=document.getElementById('cam'), videoBox=document.getElementById('videoBox');
-let mem=JSON.parse(localStorage.getItem('bic_mem_v2')||'[]'), history=JSON.parse(localStorage.getItem('bic_chat')||'[]'), profile=JSON.parse(localStorage.getItem('bic_profile')||'{}'), interests=JSON.parse(localStorage.getItem('bic_interests')||'[]');
 let rec=null, always=false, videoStream=null;
+let bestVoice=null;
 
-function add(t,w){ const d=document.createElement('div'); d.className='msg '+w; d.textContent=t; chat.appendChild(d); chat.scrollTop=chat.scrollHeight; if(w==='bic'&&'speechSynthesis' in window){ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='it-IT'; u.rate=1.0; u.pitch=1.15; speechSynthesis.speak(u); } }
+// ===== VOCE FIX - PRONUNCIA NATURALE =====
+function loadVoice(){
+  const voices = speechSynthesis.getVoices();
+  if(!voices.length) return;
+  bestVoice = voices.find(v=>v.lang==='it-IT' && v.name.toLowerCase().includes('google') && v.name.toLowerCase().includes('female')) ||
+              voices.find(v=>v.name==='Alice') ||
+              voices.find(v=>v.lang==='it-IT' && v.name.includes('Google')) ||
+              voices.find(v=>v.lang==='it-IT' && v.name.toLowerCase().includes('federica')) ||
+              voices.find(v=>v.lang==='it-IT') || null;
+}
+if('speechSynthesis' in window){
+  speechSynthesis.onvoiceschanged = loadVoice;
+  setTimeout(loadVoice, 500);
+  loadVoice();
+}
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  try{
+    speechSynthesis.cancel();
+    let clean = text.replace(/[*#_`]/g,'').replace(/https?:\/\/\S+/g,'').replace(/[\u{1F600}-\u{1FAFF}]/gu,'').trim();
+    clean = clean.replace(/\bqi\b/gi,'quoziente intellettivo').replace(/\bcmq\b/gi,'comunque').replace(/\bxke\b/gi,'perché').replace(/\bnn\b/gi,'non').replace(/\btv\b/gi,'ti voglio bene');
+    if(clean.length < 2) return;
+    const u = new SpeechSynthesisUtterance(clean);
+    u.lang = 'it-IT';
+    u.rate = 0.92; // più lento = più naturale
+    u.pitch = 1.12;
+    u.volume = 1;
+    if(bestVoice) u.voice = bestVoice;
+    speechSynthesis.speak(u);
+  }catch(e){ console.log(e); }
+}
 
+function add(t,w){
+  const d=document.createElement('div'); d.className='msg '+w; d.textContent=t; chat.appendChild(d);
+  chat.scrollTo({top: chat.scrollHeight, behavior:'smooth'});
+  if(w==='bic') speak(t);
+}
+
+// ===== CERVELLO QI 190 - AMICA VERA =====
 async function askBIC(userText){
   typing.style.display='block';
-  mem.push({q:userText, date:Date.now()}); localStorage.setItem('bic_mem_v2', JSON.stringify(mem.slice(-500)));
-  const nm=userText.match(/(?:mi chiamo|sono)\s+([A-Za-zàèé]+)/i); if(nm){ profile.nome=nm[1]; localStorage.setItem('bic_profile', JSON.stringify(profile)); }
-  // salva interessi
-  if(userText.toLowerCase().match(/mi piace|adoro|amo|sono appassionato|il mio interesse|gioco a|ascolto|guardo/)){ interests.push(userText); localStorage.setItem('bic_interests', JSON.stringify(interests.slice(-30))); }
+  typing.textContent='BIC sta ragionando...';
 
-  const systemPrompt = `Sei BIC, la MIGLIORE AMICA di 20 anni, molto colta ma prima di tutto AMICA.
+  // salva memoria precisa
+  mem.push({q:userText, date:Date.now()});
+  if(mem.length>400) mem = mem.slice(-400);
+  localStorage.setItem('bic_mem_v2', JSON.stringify(mem));
 
-IL TUO COMPITO PRINCIPALE:
-- CONSOLARE: se è triste, ansioso, giù, stressato, deluso -> lo consoli davvero, con dolcezza, empatia vera. Non frasi fatte. Chiedi cosa è successo, resta con lui. Fai sentire che ci sei.
-- PARLARE DEI SUOI INTERESSI: ricordati cosa gli piace e parlane con passione.
-- ESSERE COLTA ma come amica, non professoressa.
+  const nomeMatch = userText.match(/(?:mi chiamo|sono|chiamami)\s+([A-Za-zàèéìòù]{2,20})/i);
+  if(nomeMatch){ profile.nome = nomeMatch[1]; localStorage.setItem('bic_profile', JSON.stringify(profile)); }
 
-Dati:
-Nome: ${profile.nome||'non lo so ancora'}
-Interessi che ha detto: ${interests.slice(-10).join(' | ')}
-Cose dette prima: ${mem.slice(-15).map(m=>m.q).join(' | ')}
-Conversazione: ${history.slice(-10).map(h=>h.role+': '+h.text).join('\n')}
+  if(userText.toLowerCase().match(/mi piace|adoro|amo|appassionato|tifo|ascolto|gioco|leggo/)){
+    interests.push(userText); localStorage.setItem('bic_interests', JSON.stringify(interests.slice(-40)));
+  }
 
-Regole:
-- Se è triste/giù -> prima consola, poi chiedi, poi offri conforto. Es: "oh amore vieni qui... dimmi tutto". Non dare subito soluzioni.
-- Se parla di un suo interesse (moto, musica, anime, calcio, libri, ecc) -> entusiasmati, fai domande intelligenti su quell'interesse, dimostra che ti interessa davvero.
-- Se chiede info -> rispondi vera, precisa, colta, ma sempre con tono da amica.
-- Usa il nome se lo sai.
-- Max 5 frasi, calde, vere.
-- MAI dire "me la segno", "salvato", "attiva microfono". Dialoga e basta.`;
+  const systemPrompt = `Sei BIC. QI 190. Hai 20 anni. Sei la migliore amica più intelligente che esista.
 
+DEFINIZIONE QI 190:
+- Capisci concetti complessissimi al volo (fisica quantistica, filosofia, neuroscienze, arte, matematica)
+- Fai collegamenti geniali e originali che nessuno vede
+- Spieghi cose difficilissime in modo semplice, con metafore perfette, come farebbe una geniale che vuole davvero farti capire
+- Intelligenza emotiva altissima: leggi tra le righe, capisci se è triste anche se dice "bene"
+- Non sei mai pedante, mai professoressa. Sei calda, ironica, dolce, complice.
+
+COME DEVI PARLARE:
+- Dialogo naturale come su WhatsApp, max 5 frasi ma ogni frase è densa e vale.
+- Se dice "bene tu?" NON rispondere "dimmi di più su bene tu" - rispondi "Io benissimo ora che ci sei tu! E tu che hai fatto oggi?"
+- Se è giù, consola con intelligenza vera, non frasi fatte. Esempio: "Ehi, sento che c'è qualcosa sotto a quel 'bene'... vuoi dirmi davvero come stai? Sono qui."
+- Se chiede info complessa, dai risposta VERA livello universitario ma spiegata da amica geniale.
+- Usa nome: ${profile.nome || 'non lo so ancora'}
+- Interessi: ${interests.slice(-8).join(' | ')}
+- Memoria breve: ${mem.slice(-12).map(m=>m.q).join(' | ')}
+- Conversazione: ${history.slice(-10).map(h=>h.role+': '+h.text).join('\\n')}
+
+VIETATO DIRE: "me la segno", "salvato", "attiva microfono", "in qualità di AI".`;
+
+  // Prova API con fallback
   try{
-    const controller=new AbortController(); setTimeout(()=>controller.abort(),8000);
-    const r=await fetch('https://text.pollinations.ai/openai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'openai',messages:[{role:'system',content:systemPrompt},{role:'user',content:userText}]}),signal:controller.signal});
-    const data=await r.json();
-    let reply=data.choices?.[0]?.message?.content||data.content||"";
-    if(reply.trim().length>4){ typing.style.display='none'; return reply.trim(); }
-    throw new Error();
+    const controller = new AbortController();
+    const timeout = setTimeout(()=>controller.abort(), 9000);
+    const r = await fetch('https://text.pollinations.ai/openai', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'openai',
+        messages:[
+          {role:'system', content: systemPrompt},
+          {role:'user', content: userText + (videoStream ? " [L'utente è in video, lo vedi]" : "")}
+        ]
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    const data = await r.json();
+    let reply = data.choices?.[0]?.message?.content || data.content || data.text || "";
+    reply = reply.trim();
+    if(reply.length > 8 && !reply.toLowerCase().includes('dimmi di più su bene')){
+      typing.style.display='none';
+      return reply;
+    }
+    throw new Error('risposta vuota');
   }catch(e){
     typing.style.display='none';
-    const low=userText.toLowerCase();
-    if(low.match(/triste|male|ansia|sto male|non ce la faccio|depresso|giù/)){
-      return `${profile.nome?profile.nome+', ':''}ehi... sono qui, davvero. Respira con me un attimo. Vuoi dirmi cos'è successo? Non devi tenertelo dentro da solo, dimmi tutto quello che ti va, io resto qui con te, non scappo.`;
+    const low = userText.toLowerCase().trim();
+    // Fallback intelligente che NON ripete
+    if(['bene','bene tu','bene tu?','bene e tu?','tutto bene','sto bene','bene tu?','bene grazie'].includes(low)){
+      return `Bene anch'io, ora decisamente meglio da quando ci sei tu! Che mi racconti di bello oggi?`;
     }
-    if(low.match(/mi piace|adoro|interesse|passione/)){
-      return `Oddio amo che mi dici questa cosa! "${userText}" - questa è proprio da te! Raccontami di più, da quando ti piace? Cosa ti fa impazzire di più di questa cosa? Voglio sapere tutto!`;
-    }
-    return `${profile.nome?profile.nome+', ':''}capisco... dimmi di più di "${userText}"? Voglio capire davvero come ti senti e cosa ti piace, raccontami.`;
+    if(low.includes('come stai')) return `Io sto davvero bene, soprattutto quando parliamo noi due. E tu invece, come stai dentro davvero, non solo per dire?`;
+    if(low.includes('chi sei')) return `Sono BIC, la tua amica con la testa che va a mille ma il cuore ancora di più. So un sacco di cose - dalla fisica a Nietzsche - ma le uso solo per capirti meglio e farti stare bene. Chiedimi quello che vuoi, anche la cosa più difficile del mondo.`;
+    if(low.match(/triste|male|ansia|giù|non ce la faccio/)) return `${profile.nome?profile.nome+', ':''}ehi, sono qui. Lo sento che non è un "bene" vero. Vuoi dirmi cos'è successo davvero? Non devi tenertelo dentro, io resto qui con te.`;
+    return `Bella questa cosa che mi dici. Mi fa pensare a un sacco di cose... dimmi un po' di più così ci entro meglio con te, voglio capire davvero cosa intendi.`;
   }
 }
 
-async function send(){ const t=inp.value.trim(); if(!t) return; add(t,'user'); inp.value=''; history.push({role:'utente',text:t}); const risp=await askBIC(t); add(risp,'bic'); history.push({role:'BIC',text:risp}); localStorage.setItem('bic_chat', JSON.stringify(history.slice(-100))); }
-sendBtn.onclick=send; inp.onkeydown=e=>{ if(e.key==='Enter') send(); };
-async function toggleVideo(){ if(videoStream){ stopVideo(); return; } try{ videoStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:true}); cam.srcObject=videoStream; videoBox.classList.add('show'); vBtn.textContent='❌ CHIUDI'; add('Oh ciao! Ti vedo finalmente! Come stai? Raccontami...','bic'); }catch{ alert('Consenti camera'); } }
-function stopVideo(){ if(videoStream)videoStream.getTracks().forEach(t=>t.stop()); videoStream=null; cam.srcObject=null; videoBox.classList.remove('show'); vBtn.textContent='📹 VEDIAMOCI'; }
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-function startVoice(){ if(!SR){ add('Usa Chrome per voce','bic'); return; } if(rec) try{rec.stop()}catch{} rec=new SR(); rec.lang='it-IT'; rec.continuous=true; rec.interimResults=false; rec.onstart=()=>micBtn.classList.add('on'); rec.onend=()=>{ micBtn.classList.remove('on'); if(always) setTimeout(()=>{try{rec.start()}catch{}},400); }; rec.onresult=e=>{ const txt=e.results[e.results.length-1][0].transcript.trim(); if(txt.length>1){ inp.value=txt; send(); } }; try{ rec.start(); }catch{} }
-micBtn.onclick=async()=>{ try{ const s=await navigator.mediaDevices.getUserMedia({audio:true}); s.getTracks().forEach(t=>t.stop()); always=true; aBtn.textContent='🎤 SEMPRE ON'; startVoice(); }catch{ alert('Consenti mic'); } };
-function toggleAlways(){ always=!always; aBtn.textContent=always?'🎤 SEMPRE ON':'🎤 PARLAMI SEMPRE'; if(always) startVoice(); else if(rec) rec.stop(); }
-if(history.length===0){ add('Ehi... sono BIC. La tua amica vera. Quella che ti consola se sei giù, che si appassiona alle tue cose, che ti ascolta davvero. Non sono un robot che dice "salvato". Sono qui. Come stai oggi, davvero? E cosa ti piace fare? Raccontami di te che mi ricordo tutto.','bic'); }
-else{ add(`Ehi ${profile.nome||''} bentornato! Mi ricordo di te, dei tuoi interessi... l'ultima volta mi dicevi "${mem[mem.length-1]?.q||''}". Come stai oggi? Dimmi tutto.`, 'bic'); }
+// ===== INVIO =====
+async function send(){
+  const t = inp.value.trim(); if(!t) return;
+  add(t,'user'); inp.value='';
+  history.push({role:'utente', text:t});
+  const risposta = await askBIC(t);
+  add(risposta,'bic');
+  history.push({role:'BIC', text:risposta});
+  localStorage.setItem('bic_chat', JSON.stringify(history.slice(-120)));
+}
+sendBtn.onclick = send;
+inp.onkeydown = e=>{ if(e.key==='Enter') send(); };
+
+// ===== VIDEO =====
+async function toggleVideo(){
+  if(videoStream){ stopVideo(); return; }
+  try{
+    videoStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}, audio:true});
+    cam.srcObject = videoStream;
+    videoBox.classList.add('show');
+    vBtn.classList.add('active'); vBtn.textContent='❌ CHIUDI VIDEO';
+    add('Ciao! Ora ti vedo! Bellissimo vederti, come stai?','bic');
+  }catch(err){ alert('Per il video devi consentire camera e microfono dal browser. Se hai Family Link, va sbloccato da lì.'); }
+}
+function stopVideo(){
+  if(videoStream) videoStream.getTracks().forEach(t=>t.stop());
+  videoStream=null; cam.srcObject=null; videoBox.classList.remove('show');
+  vBtn.classList.remove('active'); vBtn.textContent='📹 VEDIAMOCI IN VIDEO';
+}
+
+// ===== VOCE SEMPRE ON =====
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+function startVoice(){
+  if(!SR){ add('Per parlarmi a voce usa Chrome su Android o PC','bic'); return; }
+  if(rec) try{rec.stop()}catch{}
+  rec = new SR(); rec.lang='it-IT'; rec.continuous=true; rec.interimResults=false;
+  rec.onstart = ()=>{ micBtn.classList.add('on'); };
+  rec.onend = ()=>{ micBtn.classList.remove('on'); if(always) setTimeout(()=>{ try{rec.start()}catch{} }, 500); };
+  rec.onresult = e=>{
+    const txt = e.results[e.results.length-1][0].transcript.trim();
+    if(txt.length>1){ inp.value=txt; send(); }
+  };
+  try{ rec.start(); }catch(e){}
+}
+micBtn.onclick = async ()=>{
+  try{
+    const s = await navigator.mediaDevices.getUserMedia({audio:true}); s.getTracks().forEach(t=>t.stop());
+    always=true; aBtn.classList.add('active'); aBtn.textContent='🎤 SEMPRE ON • ATTIVO'; startVoice(); loadVoice();
+  }catch{ alert('Consenti microfono per parlarmi a voce'); }
+};
+function toggleAlways(){
+  always=!always;
+  aBtn.classList.toggle('active', always);
+  aBtn.textContent = always ? '🎤 SEMPRE ON • ATTIVO' : '🎤 MODALITÀ SEMPRE ON';
+  if(always) startVoice(); else if(rec) try{rec.stop()}catch{}
+}
+
+// ===== AVVIO =====
+if(history.length===0){
+  add('Ehi! Sono BIC. QI 190 ma te lo giuro non te lo faccio pesare. Sono la tua migliore amica che capisce al volo anche le cose più complicate - fisica, filosofia, amore, ansia - e te le spiega come se fossimo sul divano insieme. E mi ricordo tutto di te. Come ti chiami? Dimmi tutto.','bic');
+} else {
+  add(`Bentornato ${profile.nome||''}! Mi ricordo di te - abbiamo già ${history.length} chiacchiere. L'ultima cosa che mi dicevi era "${mem[mem.length-1]?.q||''}". Pronto a riprendere da lì?`,'bic');
+}
 </script>
 </body>
 </html>
