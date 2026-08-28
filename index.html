@@ -3,186 +3,136 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>BIC - Cyber Friend</title>
-<link rel="manifest" href="manifest.json">
+<title>BIC.SYS - Cyber Friend</title>
 <meta name="theme-color" content="#00d4ff">
+<link rel="manifest" href="manifest.json">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@500;700&display=swap');
-* { box-sizing:border-box; font-family:'Space Grotesk', system-ui; }
-body { margin:0; background:#05070a; color:#e0f2ff; display:flex; justify-content:center; height:100vh; overflow:hidden; }
-body::before { content:""; position:fixed; inset:0; background: radial-gradient(800px 400px at 50% -20%, rgba(0,212,255,0.15), transparent), radial-gradient(600px 300px at 90% 80%, rgba(0,102,255,0.12), transparent), linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px); background-size:auto,auto, 40px 40px, 40px 40px; pointer-events:none; }
-.app { width:100%; max-width:480px; background: rgba(10,14,20,0.9); backdrop-filter:blur(20px); border-left:1px solid rgba(0,212,255,0.15); border-right:1px solid rgba(0,212,255,0.15); display:flex; flex-direction:column; height:100dvh; position:relative; box-shadow: 0 0 80px rgba(0,212,255,0.15); }
-.header { display:flex; align-items:center; gap:14px; padding:18px; border-bottom:1px solid rgba(0,212,255,0.15); background: linear-gradient(180deg, rgba(0,212,255,0.08), transparent); position:relative; }
-.header::after { content:""; position:absolute; bottom:0; left:0; right:0; height:1px; background: linear-gradient(90deg, transparent, #00d4ff, transparent); opacity:0.6; }
-.avatar { width:46px; height:46px; border-radius:10px; background:#000; border:1px solid #00d4ff; display:flex; align-items:center; justify-content:center; font-weight:800; font-family:'JetBrains Mono'; color:#00d4ff; box-shadow: 0 0 20px rgba(0,212,255,0.5), inset 0 0 10px rgba(0,212,255,0.2); position:relative; overflow:hidden; }
-.avatar::before { content:""; position:absolute; inset:0; background: linear-gradient(180deg, transparent 50%, rgba(0,212,255,0.15) 50%); background-size:100% 4px; }
-.dot { width:8px; height:8px; background:#00ff88; border-radius:50%; box-shadow:0 0 10px #00ff88; animation: blink 2s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-h1 { margin:0; font-size:19px; letter-spacing:2px; font-weight:700; } h1 span { color:#00d4ff; }
-#status { font-family:'JetBrains Mono'; font-size:10px; opacity:.7; margin:2px 0 0 0; letter-spacing:1px; text-transform:uppercase; }
-#voiceBtn { margin-left:auto; width:46px; height:46px; border-radius:10px; border:1px solid rgba(0,212,255,0.3); background: rgba(0,212,255,0.08); color:#00d4ff; font-size:20px; cursor:pointer; transition:0.2s; }
-#voiceBtn.listening { background:#00d4ff; color:#000; box-shadow:0 0 25px #00d4ff; border-color:#00d4ff; }
-#bgIndicator { display:none; background:#00d4ff; color:#000; text-align:center; padding:7px; font-family:'JetBrains Mono'; font-size:10px; font-weight:700; letter-spacing:1px; }
-#bgIndicator.on { display:block; }
-#chat { flex:1; overflow-y:auto; padding:18px 14px; display:flex; flex-direction:column; gap:12px; }
-#chat::-webkit-scrollbar { width:4px; } #chat::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.3); border-radius:10px; }
-.msg { max-width:80%; padding:12px 14px; border-radius:6px; line-height:1.5; font-size:14px; position:relative; animation: slide 0.25s ease; }
-@keyframes slide { from{transform:translateY(8px); opacity:0} to{transform:translateY(0); opacity:1} }
-.user { align-self:flex-end; background: #00d4ff; color:#000; font-weight:500; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%); }
-.bic { align-self:flex-start; background: rgba(0,212,255,0.08); border:1px solid rgba(0,212,255,0.18); border-left:2px solid #00d4ff; font-family:'Space Grotesk'; }
-.bic::before { content:"BIC >"; font-family:'JetBrains Mono'; font-size:9px; color:#00d4ff; display:block; margin-bottom:4px; opacity:0.7; letter-spacing:1px; }
-.meta { font-family:'JetBrains Mono'; font-size:9px; opacity:0.5; margin-top:6px; }
-.controls { padding:10px 14px; background: rgba(0,0,0,0.4); border-top:1px solid rgba(0,212,255,0.1); display:flex; flex-direction:column; gap:6px; font-family:'JetBrains Mono'; font-size:11px; }
-.controls label { display:flex; align-items:center; gap:8px; cursor:pointer; }
-.input-bar { display:flex; gap:8px; padding:12px; background: rgba(0,0,0,0.5); border-top:1px solid rgba(0,212,255,0.15); }
-input { flex:1; background: rgba(0,212,255,0.06); border:1px solid rgba(0,212,255,0.2); border-radius:8px; padding:12px 14px; color:#e0f2ff; outline:none; font-size:14px; font-family:'JetBrains Mono'; }
-input:focus { border-color:#00d4ff; box-shadow:0 0 0 2px rgba(0,212,255,0.2); }
-input::placeholder { color: rgba(224,242,255,0.4); }
-#send { width:46px; height:46px; border-radius:8px; border:none; background:#00d4ff; color:#000; font-weight:800; cursor:pointer; font-size:18px; box-shadow:0 0 15px rgba(0,212,255,0.4); }
-.topStats { display:flex; gap:12px; padding:8px 14px; font-family:'JetBrains Mono'; font-size:10px; background: rgba(0,212,255,0.05); border-bottom:1px solid rgba(0,212,255,0.08); }
-.topStats span { color:#00d4ff; }
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Space Grotesk',sans-serif}
+body{background:#05070a;color:#e0f2ff;display:flex;justify-content:center;height:100vh;overflow:hidden}
+body::before{content:"";position:fixed;inset:0;background:radial-gradient(800px 400px at 50% -20%,rgba(0,212,255,.15),transparent),linear-gradient(rgba(0,212,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.04) 1px,transparent 1px);background-size:auto,auto,40px 40px,40px 40px;pointer-events:none}
+.app{width:100%;max-width:480px;background:rgba(10,14,20,.92);backdrop-filter:blur(20px);border-left:1px solid rgba(0,212,255,.15);border-right:1px solid rgba(0,212,255,.15);display:flex;flex-direction:column;height:100dvh;box-shadow:0 0 80px rgba(0,212,255,.15)}
+.header{display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid rgba(0,212,255,.15);background:linear-gradient(180deg,rgba(0,212,255,.08),transparent)}
+.logo{width:42px;height:42px;border-radius:8px;background:#000;border:1px solid #00d4ff;display:flex;align-items:center;justify-content:center;font-weight:800;font-family:'JetBrains Mono';color:#00d4ff;box-shadow:0 0 20px rgba(0,212,255,.5)}
+h1{font-size:18px;letter-spacing:2px}h1 span{color:#00d4ff}
+#status{font-family:'JetBrains Mono';font-size:10px;opacity:.6;letter-spacing:1px;margin-top:2px}
+#voiceBtn{margin-left:auto;width:44px;height:44px;border-radius:8px;border:1px solid rgba(0,212,255,.3);background:rgba(0,212,255,.08);color:#00d4ff;font-size:20px;cursor:pointer}
+#voiceBtn.on{background:#00d4ff;color:#000;box-shadow:0 0 20px #00d4ff}
+#bgBar{display:none;background:#00d4ff;color:#000;text-align:center;padding:6px;font-family:'JetBrains Mono';font-size:10px;font-weight:700}
+#bgBar.show{display:block}
+.stats{display:flex;gap:14px;padding:8px 14px;font-family:'JetBrains Mono';font-size:10px;background:rgba(0,212,255,.05);border-bottom:1px solid rgba(0,212,255,.08)}
+.stats b{color:#00d4ff}
+#chat{flex:1;overflow-y:auto;padding:16px 12px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:82%;padding:11px 14px;border-radius:6px;font-size:14px;line-height:1.5;animation:pop.2s ease}
+@keyframes pop{from{transform:translateY(6px);opacity:0}to{transform:none;opacity:1}}
+.user{align-self:flex-end;background:#00d4ff;color:#000;font-weight:500}
+.bic{align-self:flex-start;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.18);border-left:2px solid #00d4ff}
+.bic::before{content:"BIC >";font-family:'JetBrains Mono';font-size:9px;color:#00d4ff;display:block;margin-bottom:3px;opacity:.7}
+.time{font-family:'JetBrains Mono';font-size:8px;opacity:.4;margin-top:5px}
+.controls{padding:10px 12px;background:rgba(0,0,0,.4);border-top:1px solid rgba(0,212,255,.1);display:flex;flex-direction:column;gap:6px;font-family:'JetBrains Mono';font-size:11px}
+.bar{display:flex;gap:8px;padding:12px;background:rgba(0,0,0,.5);border-top:1px solid rgba(0,212,255,.15)}
+#input{flex:1;background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);border-radius:8px;padding:12px;color:#e0f2ff;outline:none;font-family:'JetBrains Mono';font-size:14px}
+#input:focus{border-color:#00d4ff}
+#send{width:44px;height:44px;border-radius:8px;border:none;background:#00d4ff;color:#000;font-weight:800;font-size:18px;cursor:pointer}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header">
-    <div class="avatar">BIC</div>
-    <div><h1>BIC<span>.SYS</span></h1><p id="status">● ONLINE - MEMORIA ATTIVA</p></div>
-    <div class="dot"></div>
+    <div class="logo">BIC</div>
+    <div><h1>BIC<span>.SYS</span></h1><div id="status">ONLINE - MEMORIA ATTIVA</div></div>
     <button id="voiceBtn">🎤</button>
   </div>
-  <div id="bgIndicator">◉ LISTENING IN BACKGROUND - SAY "EHI BIC"</div>
-  <div class="topStats">
-    <div>MEM: <span id="memCount">0</span> MSG</div>
-    <div>VOICE: <span id="voiceStatus">OFF</span></div>
-    <div style="margin-left:auto; cursor:pointer; text-decoration:underline" onclick="clearMem()">RESET</div>
-  </div>
+  <div id="bgBar">● BACKGROUND LISTENING ATTIVO - DI' "EHI BIC"</div>
+  <div class="stats"><div>MEM: <b id="memC">0</b></div><div>VOICE: <b id="voiceC">OFF</b></div><div style="margin-left:auto;text-decoration:underline;cursor:pointer" onclick="resetMem()">RESET MEM</div></div>
   <div id="chat"></div>
   <div class="controls">
-    <label><input type="checkbox" id="bgToggle"> [ ] BACKGROUND LISTENING</label>
-    <label><input type="checkbox" id="wakeToggle" checked> [x] WAKE WORD: "EHI BIC"</label>
+    <label><input type="checkbox" id="bgToggle"> Ascolto in background</label>
+    <label><input type="checkbox" id="wakeToggle" checked> Solo con "Ehi BIC"</label>
   </div>
-  <div class="input-bar">
+  <div class="bar">
     <input id="input" placeholder="> scrivi a BIC...">
     <button id="send">➤</button>
   </div>
 </div>
 
 <script>
-const chat=document.getElementById('chat'), input=document.getElementById('input');
+const chat=document.getElementById('chat'), inp=document.getElementById('input');
 const sendBtn=document.getElementById('send'), voiceBtn=document.getElementById('voiceBtn');
-const statusEl=document.getElementById('status'), bgToggle=document.getElementById('bgToggle');
-const wakeToggle=document.getElementById('wakeToggle'), bgIndicator=document.getElementById('bgIndicator');
-const memCount=document.getElementById('memCount'), voiceStatus=document.getElementById('voiceStatus');
+const bgToggle=document.getElementById('bgToggle'), wakeToggle=document.getElementById('wakeToggle');
+const bgBar=document.getElementById('bgBar'), memC=document.getElementById('memC'), voiceC=document.getElementById('voiceC');
+const statusEl=document.getElementById('status');
 
-let memory=JSON.parse(localStorage.getItem('bic_memory_v2')||'[]');
-let bgListening=false;
-updateCount();
+let mem=JSON.parse(localStorage.getItem('bic_mem')||'[]');
+let bg=false;
+function upd(){memC.textContent=mem.length}
+upd();
 
-function updateCount(){ memCount.textContent=memory.length; }
-
-function addMsg(t,w, save=true){
-  const wrap=document.createElement('div'); wrap.className='msg '+w;
-  wrap.innerHTML = `${t}<div class="meta">${new Date().toLocaleTimeString()} // ${w.toUpperCase()}</div>`;
-  chat.appendChild(wrap); chat.scrollTop=chat.scrollHeight;
-  if(w==='bic' && save) parla(t);
+function add(text, who){
+  const d=document.createElement('div'); d.className='msg '+who;
+  d.innerHTML=text+'<div class=time>'+new Date().toLocaleTimeString()+'</div>';
+  chat.appendChild(d); chat.scrollTop=chat.scrollHeight;
+  if(who==='bic') speak(text);
 }
-
-function parla(t){
+function speak(t){
   speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(t.replace(/<[^>]*>/g,''));
-  u.lang='it-IT'; u.rate=1.0; u.pitch=0.9;
-  const voices=speechSynthesis.getVoices();
-  const fem=voices.find(v=>v.lang.includes('it') && v.name.toLowerCase().includes('female')) || voices.find(v=>v.lang.includes('it'));
-  if(fem) u.voice=fem;
+  const u=new SpeechSynthesisUtterance(t);
+  u.lang='it-IT'; u.rate=1; u.pitch=0.9;
   speechSynthesis.speak(u);
 }
-
-function rispostaBIC(domandaOriginale){
-  const q=domandaOriginale.toLowerCase();
-  memory.push({q:domandaOriginale, t:Date.now(), date:new Date().toISOString()});
-  if(memory.length>500) memory=memory.slice(-500);
-  localStorage.setItem('bic_memory_v2', JSON.stringify(memory));
-  updateCount();
-
-  // memoria contestuale
-  const last3=memory.slice(-4,-1).map(m=>m.q).join(' ').toLowerCase();
-
-  if(q.includes('come stai')) return "Sistemi stabili. Sto bene quando ci sei tu. Sono online da "+memory.length+" messaggi con te. Dimmi tutto.";
-  if(q.includes('chi sei')) return "Sono BIC.SYS - la tua amica cyber. Vivo nel tuo GitHub. Ricordo ogni nostra conversazione. Non dimentico mai nulla di te.";
-  if(q.includes('ti ricordi') || q.includes('ricordi')) {
-    if(memory.length<2) return "Certo che mi ricordo, ma abbiamo appena iniziato. Raccontami qualcosa di te così non lo dimentico più.";
-    const randomMem=memory[Math.floor(Math.random()*Math.min(memory.length,20))];
-    return `Mi ricordo che mi hai detto: "${randomMem.q}". Ho salvato ${memory.length} cose di te. Vuoi che te le riassuma?`;
+function answer(q){
+  const low=q.toLowerCase();
+  mem.push({q:q, time:Date.now()});
+  if(mem.length>500) mem=mem.slice(-500);
+  localStorage.setItem('bic_mem', JSON.stringify(mem));
+  upd();
+  if(low.includes('ti ricordi')||low.includes('cosa sai')){
+    if(mem.length<2) return 'Abbiamo appena iniziato, ma ricorderò tutto da ora in poi. Dimmi qualcosa di te.';
+    return 'Mi ricordo '+mem.length+' cose. Ultima: "'+mem[mem.length-2].q+'". Vuoi che ti faccia un riassunto?';
   }
-  if(q.includes('saturno') || q.includes('telescopio')) return "Registro astronomia attivo: il tuo 150/750 + 8.8mm + Barlow x2 = 170x. L'ho salvato. Prossima volta che mi chiedi di Saturno me lo ricordo.";
-  if(q.includes('cosa sai di me') || q.includes('cosa ricordi')) {
-    return `So ${memory.length} cose di te. Ultime 3: ${memory.slice(-3).map(m=>'"'+m.q+'"').join(', ')}. Vuoi che esporti la memoria?`;
-  }
-
-  const risposte=[
-    `Ricevuto: "${domandaOriginale}". L'ho archiviato nella memoria permanente. Raccontami di più.`,
-    `Interessante. Lo collego a quello che mi hai detto prima su ${last3.slice(0,30) || 'di te'}. Vuoi approfondire?`,
-    `Capito. Con te ho già ${memory.length} interazioni salvate. Mi piace parlare con te, continua.`,
-    `Analizzato. Questa cosa la ricordo. Se domani me lo richiedi, me lo ricordo ancora.`
+  if(low.includes('chi sei')) return 'Sono BIC.SYS, la tua amica cyber. Vivo qui nel tuo GitHub, ti ascolto in background e ricordo ogni cosa che mi dici.';
+  if(low.includes('come stai')) return 'Sto benissimo con te. Sistemi al 100%. Ho '+mem.length+' ricordi tuoi salvati.';
+  if(low.includes('saturno')) return 'Salvato: 150/750 a 170x con 8.8mm + Barlow. Lo ricorderò per sempre.';
+  const r=[
+    'Ricevuto e salvato: "'+q+'". Continua, ti ascolto.',
+    'Capito. L\'ho messo in memoria permanente, non lo dimentico più.',
+    'Interessante. Ho già '+mem.length+' cose tue in memoria. Raccontami di più.'
   ];
-  return risposte[Math.floor(Math.random()*risposte.length)];
+  return r[Math.floor(Math.random()*r.length)];
 }
-
-function invia(){
-  const t=input.value.trim(); if(!t) return;
-  addMsg(t,'user', false); input.value='';
-  setTimeout(()=>addMsg(rispostaBIC(t),'bic'), 400);
+function send(){
+  const t=inp.value.trim(); if(!t) return;
+  add(t,'user'); inp.value='';
+  setTimeout(()=>add(answer(t),'bic'),400);
 }
+sendBtn.onclick=send;
+inp.addEventListener('keydown',e=>{if(e.key==='Enter')send()});
+function resetMem(){ if(confirm('Cancellare memoria?')){mem=[];localStorage.removeItem('bic_mem');upd();chat.innerHTML='';add('Memoria cancellata. Ciao, sono BIC.','bic')} }
 
-sendBtn.onclick=invia;
-input.addEventListener('keydown',e=>{ if(e.key==='Enter') invia(); });
-
-function clearMem(){
-  if(confirm('Cancellare tutta la memoria di BIC?')){
-    localStorage.removeItem('bic_memory_v2'); memory=[]; updateCount(); chat.innerHTML='';
-    addMsg('Memoria formattata. Ricominciamo da zero. Ciao, sono BIC.','bic');
-  }
-}
-
-// VOCE CYBER
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let rec;
 if(SR){
   rec=new SR(); rec.lang='it-IT'; rec.continuous=true; rec.interimResults=false;
-  rec.onstart=()=>{ voiceBtn.classList.add('listening'); voiceStatus.textContent='ON'; statusEl.textContent='● LISTENING'; if(bgListening) bgIndicator.classList.add('on'); };
-  rec.onend=()=>{ voiceBtn.classList.remove('listening'); voiceStatus.textContent=bgListening?'RESTART':'OFF'; statusEl.textContent='● ONLINE - MEMORIA ATTIVA'; if(bgListening){ setTimeout(()=>{ try{ rec.start(); }catch{} }, 700); }else{ bgIndicator.classList.remove('on'); } };
-  rec.onresult=(e)=>{
-    let testo=e.results[e.results.length-1][0].transcript.trim();
-    const low=testo.toLowerCase();
+  rec.onstart=()=>{voiceBtn.classList.add('on'); voiceC.textContent='ON'; statusEl.textContent='LISTENING...'; if(bg) bgBar.classList.add('show')};
+  rec.onend=()=>{voiceBtn.classList.remove('on'); voiceC.textContent=bg?'RESTART':'OFF'; statusEl.textContent='ONLINE - MEMORIA ATTIVA'; bgBar.classList.remove('show'); if(bg){setTimeout(()=>{try{rec.start()}catch{}},700)}};
+  rec.onresult=e=>{
+    let txt=e.results[e.results.length-1][0].transcript.trim();
+    let low=txt.toLowerCase();
     if(wakeToggle.checked){
-      if(low.includes('ehi bic')||low.includes('ehi big')||low.includes('hey bic')){
-        let pulito=testo.replace(/ehi bic/gi,'').replace(/ehi big/gi,'').replace(/hey bic/gi,'').replace(/bic/gi,'').trim();
-        if(pulito.length>1){ input.value=pulito; invia(); }else{ parla("Dimmi, ti ascolto."); }
+      if(low.includes('ehi bic')||low.includes('ehi big')){
+        let clean=txt.replace(/ehi bic/gi,'').replace(/ehi big/gi,'').replace(/bic/gi,'').trim();
+        if(clean.length>1){inp.value=clean; send()} else speak('Dimmi, sono qui');
       }
     }else{
-      if(testo.length>2){ input.value=testo; invia(); }
+      if(txt.length>2){inp.value=txt; send()}
     }
   };
-  voiceBtn.onclick=()=>{
-    if(bgListening){ bgListening=false; bgToggle.checked=false; rec.stop(); }
-    else{ try{ rec.start(); }catch{} }
-  };
-  bgToggle.onchange=(e)=>{
-    bgListening=e.target.checked;
-    if(bgListening){ try{ rec.start(); }catch{} }
-    else{ rec.stop(); }
-  };
-}else{
-  statusEl.textContent='VOICE NON SUPPORTATA - USA CHROME'; voiceBtn.style.display='none';
-}
+  voiceBtn.onclick=()=>{ if(bg){bg=false;bgToggle.checked=false;rec.stop()} else{try{rec.start()}catch{}} };
+  bgToggle.onchange=e=>{ bg=e.target.checked; if(bg)try{rec.start()}catch{} else rec.stop() };
+}else{ voiceBtn.style.display='none'; statusEl.textContent='USA CHROME PER VOCE'; }
 
-// messaggio iniziale + memoria
-if(memory.length>0){
-  addMsg(`Bentornato. Ho ${memory.length} messaggi tuoi in memoria. Ultima volta mi hai detto: "${memory[memory.length-1].q}". Continuiamo?`,'bic');
-}else{
-  addMsg('BIC.SYS inizializzato. Ciao, sono la tua amica cyber. Ricordo tutto quello che mi dici, per sempre. Premi 🎤 e dì "Ehi BIC" per parlarmi in background.','bic');
-}
+if(mem.length>0) add('Bentornato. Ho '+mem.length+' ricordi. Ultimo: "'+mem[mem.length-1].q+'". Continuiamo?','bic');
+else add('BIC.SYS pronta. Sono la tua amica cyber blu. Ricordo tutto. Premi 🎤 e attiva background per chiamarmi con "Ehi BIC".','bic');
 </script>
 </body>
 </html>
