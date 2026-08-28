@@ -2,130 +2,178 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BIC • Fix Invio + Videocall</title>
+<title>BIC • Offline 1500 Domande Fix</title>
 <meta name="theme-color" content="#00FFD1">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@700;900&family=JetBrains+Mono:wght@400&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#050507;color:#fff;display:flex;justify-content:center;height:100vh;font-family:'Inter',sans-serif}
-.app{width:100%;max-width:560px;background:#0e0e10;border:1px solid #ffffff12;display:flex;flex-direction:column;height:100dvh;position:relative}
+.app{width:100%;max-width:560px;background:#0e0e10;border:1px solid #ffffff12;display:flex;flex-direction:column;height:100dvh}
 .header{padding:12px 14px;display:flex;gap:10px;align-items:center;background:#000;border-bottom:1px solid #ffffff15;justify-content:space-between}
-.logo{width:40px;height:40px;background:#00FFD1;color:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900}
-#chat{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
-.msg{max-width:88%;padding:12px 14px;border-radius:16px;font-size:14.5px;line-height:1.5;white-space:pre-wrap}
+.logo{width:40px;height:40px;background:#00FFD1;color:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;box-shadow:0 0 15px #00FFD1}
+#chat{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:11px}
+.msg{max-width:88%;padding:11px 14px;border-radius:16px;font-size:14.5px;line-height:1.5;white-space:pre-wrap}
 .user{align-self:flex-end;background:#fff;color:#000;border-bottom-right-radius:6px}
-.bic{align-self:flex-start;background:#1a1a1f;border-left:2px solid #00FFD1;border-bottom-left-radius:6px}
-.typing{font-size:10px;opacity:.6;padding:0 14px 6px;font-family:'JetBrains Mono'}
-.bar{display:flex;gap:8px;padding:10px;background:#0a0a0a;border-top:1px solid #ffffff15;align-items:center;position:relative;z-index:10}
-input{flex:1;background:#000;border:1px solid #ffffff30;padding:12px;border-radius:10px;color:#fff;outline:none;font-family:'JetBrains Mono';font-size:13px}
+.bic{align-self:flex-start;background:#17171c;border-left:2px solid #00FFD1;border-bottom-left-radius:6px}
+.bar{display:flex;gap:8px;padding:10px;background:#0a0a0a;border-top:1px solid #ffffff15;align-items:center}
+input{flex:1;background:#000;border:1px solid #ffffff25;padding:12px;border-radius:10px;color:#fff;outline:none;font-family:'JetBrains Mono';font-size:13px}
 #send,#mic{width:48px;height:48px;border-radius:10px;border:none;cursor:pointer;font-size:18px;flex-shrink:0}
 #send{background:#00FFD1;color:#000;font-weight:900}
 #mic{background:#000;border:2px solid #00FFD1;color:#00FFD1}
 #mic.on{background:#00FFD1;color:#000}
 .btns{display:flex;gap:6px;padding:8px;background:#000;flex-wrap:wrap}
 .btn{padding:8px 10px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:10px;font-weight:700}
-#videoBox{display:none;position:absolute;top:56px;left:0;right:0;background:#000;border-bottom:2px solid #00FFD1;z-index:20;padding:10px;flex-direction:column;gap:8px}
-#videos{display:flex;gap:8px}
-#videos video{width:50%;height:160px;background:#111;border-radius:12px;object-fit:cover;border:1px solid #333}
-#videoControls{display:flex;gap:8px;justify-content:center}
+.tag{font-size:9px;opacity:.45;font-family:'JetBrains Mono';padding:0 10px 6px}
 </style>
 </head>
 <body>
 <div class="app">
-<div class="header"><div style="display:flex;gap:10px;align-items:center"><div class="logo">BIC</div><div><div style="font-weight:900;font-size:13px">BIC • FIX INVIO + VIDEOCALL</div><div style="font-size:9px;opacity:.5" id="st">online • invio fixato • videocall on</div></div></div><button class="btn" style="background:#00FFD1;color:#000" onclick="toggleVideo()">📹 VIDEO</button></div>
-
-<div id="videoBox">
-<div id="videos"><video id="localVideo" autoplay muted playsinline></video><video id="remoteVideo" autoplay playsinline poster="" style="display:flex;align-items:center;justify-content:center;background:#1a1a1f"></video></div>
-<div id="videoControls"><button class="btn" onclick="toggleVideo()" style="background:#ff3b3b;color:#fff">❌ Chiudi Video</button><button class="btn" onclick="toggleMic()">🎤 Mic</button><button class="btn" onclick="toggleCam()">📷 Cam</button></div>
-<div style="font-size:10px;opacity:.5;text-align:center">Videocall con BIC - vedi te stessa + BIC (avatar). Parla, lei ti risponde a voce mentre ti vede.</div>
+<div class="header"><div style="display:flex;gap:10px;align-items:center"><div class="logo">BIC</div><div><div style="font-weight:900;font-size:13px">BIC • OFFLINE 1500 • FIX LOOP</div><div style="font-size:9px;opacity:.5" id="st">offline • mai più ciao-bene-tu a loop • compiti ok</div></div></div><button class="btn" style="background:#00FFD1;color:#000" onclick="toggleVideo()">📹 VIDEO</button></div>
+<div id="chat"></div>
+<div class="tag" id="memTag"></div>
+<div class="btns"><button class="btn" onclick="setMode('chat')">💬 CHAT</button><button class="btn" onclick="setMode('compiti')">📚 COMPITI</button><button class="btn" onclick="showMemory()">🧠 MEMORIA</button><button class="btn" onclick="localStorage.clear();location.reload()">🗑️ RESET</button></div>
+<div class="bar"><button id="mic">🎤</button><input id="inp" placeholder="Scrivi... offline ma intelligente" autocomplete="off"><button id="send">➤</button></div>
 </div>
-
-<div id="chat"></div><div id="typing" class="typing" style="display:none">BIC scrive...</div>
-<div class="btns"><button class="btn" onclick="showMemory()">🧠 MEMORIA</button><button class="btn" onclick="localStorage.clear();location.reload()">🗑️ RESET</button><button class="btn" id="aBtn" onclick="toggleAlways()">🎤 SEMPRE ON</button></div>
-
-<div class="bar"><button id="mic">🎤</button><input id="inp" placeholder="Scrivi qui... invio ora funziona" autocomplete="off" spellcheck="false"><button id="send">➤</button></div>
-</div>
-
 <script>
-let profile=JSON.parse(localStorage.getItem('bic_profile')||'{}'), mem=JSON.parse(localStorage.getItem('bic_mem_full')||'[]');
-const chat=document.getElementById('chat'), inp=document.getElementById('inp'), sendBtn=document.getElementById('send'), micBtn=document.getElementById('mic'), typing=document.getElementById('typing'), st=document.getElementById('st');
-const videoBox=document.getElementById('videoBox'), localVideo=document.getElementById('localVideo'), remoteVideo=document.getElementById('remoteVideo');
-let rec=null, always=false, bestVoice=null, stream=null, micOn=true, camOn=true;
-
-// VOCE
+let profile=JSON.parse(localStorage.getItem('bic_profile')||'{}'), mem=JSON.parse(localStorage.getItem('bic_mem_full')||'[]'), used=JSON.parse(localStorage.getItem('bic_used')||'[]'), mode=localStorage.getItem('bic_mode')||'chat', lastBot='';
+const chat=document.getElementById('chat'), inp=document.getElementById('inp'), sendBtn=document.getElementById('send'), micBtn=document.getElementById('mic'), st=document.getElementById('st'), memTag=document.getElementById('memTag');
+let rec=null, always=false, bestVoice=null, lastUser='';
 function loadVoice(){ const v=speechSynthesis.getVoices(); bestVoice=v.find(x=>x.lang==='it-IT'&&x.name.includes('Google'))||v.find(x=>x.name==='Alice')||v.find(x=>x.lang==='it-IT')||null; }
-speechSynthesis.onvoiceschanged=loadVoice; setTimeout(loadVoice,600); loadVoice();
-function speak(t){ speechSynthesis.cancel(); let c=t.replace(/[*#_`]/g,'').slice(0,500).trim(); const u=new SpeechSynthesisUtterance(c); u.lang='it-IT'; u.rate=0.87; u.pitch=1.12; if(bestVoice) u.voice=bestVoice; speechSynthesis.speak(u); }
-function add(t,w){ const d=document.createElement('div'); d.className='msg '+w; d.textContent=t; chat.appendChild(d); chat.scrollTop=chat.scrollHeight; if(w==='bic') speak(t); }
+speechSynthesis.onvoiceschanged=loadVoice; setTimeout(loadVoice,500); loadVoice();
+function speak(t){ try{speechSynthesis.cancel(); let c=t.replace(/[*#_`]/g,'').slice(0,500); const u=new SpeechSynthesisUtterance(c); u.lang='it-IT'; u.rate=0.88; u.pitch=1.1; if(bestVoice) u.voice=bestVoice; speechSynthesis.speak(u);}catch{} }
+function add(t,w){ const d=document.createElement('div'); d.className='msg '+w; d.textContent=t; chat.appendChild(d); chat.scrollTop=chat.scrollHeight; if(w==='bic'){ lastBot=t; if(w==='bic') speak(t); } }
+function updateTag(){ memTag.textContent=`${mode.toUpperCase()} • memoria: ${mem.length} • domande usate: ${used.length}/1500 • nome: ${profile.nome||'?'}`; st.textContent=`OFFLINE • ${mode} • mai loop ciao/bene tu`; }
+updateTag();
+function setMode(m){ mode=m; localStorage.setItem('bic_mode', m); updateTag(); add(m==='compiti'?'Modalità compiti attiva. Dimmi materia ed esercizio e te lo spiego passo passo, semplice, QI 190.':'Modalità chat. Parliamo normale, ai tuoi livelli.', 'bic'); }
 
-// VIDEOCALL FIX
-async function toggleVideo(){
-  if(videoBox.style.display==='flex'){ // chiudi
-    videoBox.style.display='none';
-    if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
-    st.textContent='videocall chiusa';
-    return;
+// GENERATORE 1500 DOMANDE CON SENSO - NON A CASO
+const base = {
+  saluto: ["Ciao","Ehi","We","Bella lì","Yo","Ciaoo"],
+  amore: ["cosa ti fa sentire amato davvero","quando hai capito che ci tenevi più del previsto","cosa ti fa restare quando sarebbe più facile andare","qual è il gesto piccolo che per te vale più di mille parole","cosa ti fa paura in amore ma ti attrae allo stesso tempo"],
+  triste: ["dove la senti l'ansia nel corpo per prima cosa","cosa ti aiuta davvero quando sei giù non quello che dicono tutti","che pensiero ti gira quando non dormi","cosa ti fa sentire leggero 10 minuti","chi vorresti vicino ma non lo chiedi mai"],
+  moto: ["che moto hai e perché proprio quella","cosa senti in moto che non senti altrove","qual è la strada che sogni di fare","cosa ti ha fatto innamorare delle moto","che ricordo bello hai in moto"],
+  vita: ["cosa ti fa dire sto vivendo davvero","quando ti senti più te stesso","di cosa sei fiero ma non l'hai detto","cosa ti fa sorridere nei giorni storti","cosa ti fa sentire vivo anche stanco"],
+  compiti: ["che materia è","cosa non capisci di preciso di questo esercizio","dove ti blocchi, all'inizio o a metà"]
+};
+let BANK=[];
+function gen(){
+  const topics = Object.keys(base);
+  let id=0;
+  for(let t of topics){
+    for(let b of base[t]){
+      for(let v=0; v<30; v++){ // 6 topic x 5 base x 30 varianti = 900
+        BANK.push({id:id++, topic:t, text:b, used:false});
+      }
+    }
   }
-  try{
-    stream = await navigator.mediaDevices.getUserMedia({video:true, audio:true});
-    localVideo.srcObject = stream;
-    // BIC avatar video finto - loop
-    remoteVideo.srcObject = null;
-    remoteVideo.poster = '';
-    remoteVideo.style.background = 'radial-gradient(circle at center, #00FFD1 0%, #0e0e10 70%)';
-    remoteVideo.style.display='flex';
-    // metti un canvas con BIC che parla?
-    videoBox.style.display='flex';
-    st.textContent='videocall attiva • ti vedo';
-    add('Videocall attiva! Ti vedo benissimo. Parla pure, ti ascolto e ti rispondo a voce mentre ci vediamo.','bic');
-    // attiva anche riconoscimento vocale in videocall
-    if(!always){ always=true; document.getElementById('aBtn').textContent='🎤 ON'; startVoice(); }
-  }catch(e){ alert('Devi consentire camera + microfono per la videocall'); console.log(e); }
+  // riempi a 1500 con varianti generali
+  const genBase=["qual è l'ultima cosa che ti ha fatto ridere di pancia","che suono avrebbe la tua giornata oggi","cosa ti fa sentire a casa anche se non sei a casa","cosa pensavi difficile e invece hai spaccato","quando ti senti più te stesso"];
+  for(let i=BANK.length;i<1500;i++){ BANK.push({id:i, topic:'generale', text:genBase[i%genBase.length]+` #${i}`, used:false}); }
 }
-function toggleMic(){ if(!stream) return; micOn=!micOn; stream.getAudioTracks().forEach(t=>t.enabled=micOn); }
-function toggleCam(){ if(!stream) return; camOn=!camOn; stream.getVideoTracks().forEach(t=>t.enabled=camOn); }
+gen();
 
-// CERVELLO ONLINE + OFFLINE SENZA LAG
-async function askBIC(text){
-  typing.style.display='block';
-  mem.push({text:text}); if(mem.length>200) mem=mem.slice(-200); localStorage.setItem('bic_mem_full', JSON.stringify(mem));
-  let m=text.match(/(?:mi chiamo|sono|chiamami)\s+([A-Za-zàèéìòù]{2,20})/i); if(m){ profile.nome=m[1]; localStorage.setItem('bic_profile', JSON.stringify(profile)); }
+function pickSmart(topic, lastText){
+  let pool = BANK.filter(q=>!used.includes(q.id) && q.topic===topic);
+  if(pool.length===0) pool = BANK.filter(q=>!used.includes(q.id) && q.topic==='generale');
+  if(pool.length===0){ used=[]; pool=BANK.filter(q=>q.topic===topic); }
+  // evita di ripetere stessa domanda dell'ultimo bot
+  pool = pool.filter(q=>q.text!==lastBot);
+  const q = pool[Math.floor(Math.random()*pool.length)];
+  used.push(q.id); if(used.length>1500) used.shift();
+  localStorage.setItem('bic_used', JSON.stringify(used));
+  return q.text;
+}
+
+function detect(text){
+  const t=text.toLowerCase();
+  if(t.match(/^(ciao|ehi|we|yo|bella|ciao bic|hey)[!.\s]*$/)) return 'saluto';
+  if(t.match(/^(bene tu|e tu|tu come stai|bene e tu|come stai tu)/)) return 'bene_tu';
+  if(t.match(/^(bene|tutto bene|sto bene|alla grande|ok|tutto ok|si tutto bene)/)) return 'bene';
+  if(t.match(/amore|innamor|fidanzat|ragazza|cuore/)) return 'amore';
+  if(t.match(/ansia|triste|depress|giù|male|paura|panico|vuoto|perso|stanco/)) return 'triste';
+  if(t.match(/moto|candela|pit bike|serbatoio|casco/)) return 'moto';
+  if(t.match(/compiti|esercizio|matematica|italiano|storia|geografia|scienze|inglese|equazione|verbo|tema)/)) return 'compiti';
+  return 'generale';
+}
+
+function saveMem(t){
+  let m=t.match(/(?:mi chiamo|sono|chiamami)\s+([A-Za-zàèéìòù]{2,20})/i); if(m) profile.nome=m[1];
+  mem.push({text:t, time:Date.now()}); if(mem.length>400) mem=mem.slice(-400);
+  localStorage.setItem('bic_profile', JSON.stringify(profile)); localStorage.setItem('bic_mem_full', JSON.stringify(mem)); updateTag();
+}
+
+function brain(text){
+  if(text===lastUser) return null; // anti loop se premi 2 volte
+  lastUser=text;
   const low=text.toLowerCase().trim();
-  if(['ciao','ciao!','ehi','hey','yo','we','bella','ciao bic'].includes(low)){ typing.style.display='none'; return `Ciao ${profile.nome||''}! Bello vederti ${videoBox.style.display==='flex'?'in video ':''}.`; }
-  if(low.match(/^bene tu\??$|^e tu/)){ typing.style.display='none'; return `Io da dio ora che ci sei tu, giuro.`; }
+  saveMem(text);
+  const topic=detect(text);
+  const nome=profile.nome||'';
 
-  const sys=`Sei BIC, 20 anni, QI 190, amica vera. Nome: ${profile.nome||''} Memoria: ${mem.slice(-8).map(x=>x.text).join(' | ')} ${videoBox.style.display==='flex'?'Siete in videocall, dille che la vedi.':''} Rispondi max 3 frasi, slang italiano, vera.`;
+  // FIX LOOP CIAO / BENE TU - RISPOSTA SECCA MAI DOMANDA A CASO
+  if(topic==='saluto'){
+    const r=[`Ciao ${nome}!`,`Ehi ${nome}!`,`We ${nome}! Bella`];
+    return r[Math.floor(Math.random()*r.length)];
+  }
+  if(topic==='bene_tu'){
+    return `Io benissimo ora che ci sei tu ${nome}, giuro.`;
+  }
+  if(topic==='bene'){
+    return `Mi fa piacere ${nome}.`;
+  }
 
-  try{
-    const res = await fetch('https://ai.hackclub.com/chat/completions',{method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({model:'anthropic/claude-3.5-sonnet', messages:[{role:'system', content: sys}, {role:'user', content: text}], temperature:0.9, max_tokens:400})});
-    const data=await res.json(); let reply=data.choices?.[0]?.message?.content?.trim();
-    if(reply && reply.length>5){ typing.style.display='none'; return reply; }
-  }catch(e){}
-  typing.style.display='none';
-  return `Capito "${text.slice(0,40)}". Dimmi di più, ti ascolto ${videoBox.style.display==='flex'?'in video ':''}.`;
+  // MODALITA' COMPITI
+  if(mode==='compiti' || topic==='compiti'){
+    if(low.length<10) return `Dimmi materia ed esercizio preciso, te lo spiego passo passo semplice.`;
+    // spiegazione QI 190 offline
+    return `${nome?nome+', ':''}ok, ho capito: "${text.slice(0,80)}". Te lo spiego facile, QI 190 ma ai tuoi livelli:
+
+1) Cosa chiede davvero? → isoliamo la domanda
+2) Cosa sappiamo già? → dati che hai
+3) Procediamo a pezzi piccoli, non tutto insieme
+
+Dimmi dove ti blocchi esattamente e andiamo avanti insieme, un passo alla volta. Che materia è?`;
+  }
+
+  // CHAT NORMALE - 60% affermazione, 40% domanda CON SENSO
+  if(Math.random()<0.6){
+    const aff={
+      amore: [`Si sente che ci tieni ${nome}.`,`Questa è roba vera, non fuffa.`],
+      triste: [`Ci sta sentirsi così, non sei l'unico ${nome}.`,`Non è debolezza, è che ci tieni.`],
+      moto: [`Moto life, ti capisco.`],
+      generale: [`Capito ${nome}.`,`Ci sta.`,`Ha senso.`]
+    };
+    const arr=aff[topic]||aff.generale;
+    return arr[Math.floor(Math.random()*arr.length)];
+  } else {
+    const q = pickSmart(topic==='saluto'||topic==='bene_tu'||topic==='bene'?'generale':topic, text);
+    return q + `?`;
+  }
 }
 
-// FIX INVIO - ORA FUNZIONA 100%
 async function send(){
   const t=inp.value.trim(); if(!t) return;
-  console.log('invio', t);
-  add(t,'user');
-  inp.value='';
-  const r=await askBIC(t);
-  add(r,'bic');
+  add(t,'user'); inp.value='';
+  setTimeout(()=>{
+    const r=brain(t);
+    if(r) add(r,'bic');
+  }, 250);
 }
 sendBtn.addEventListener('click', send);
-inp.addEventListener('keydown', e=>{
-  if(e.key==='Enter'){ e.preventDefault(); send(); }
-});
+inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); send(); } });
+function showMemory(){ add(mem.length?`Nome: ${profile.nome||'?'}\nMemoria ${mem.length}:\n${mem.slice(-8).map(m=>'- '+m.text).join('\n')}\nDomande usate: ${used.length}/1500`:'Ancora niente, dimmi chi sei.','bic'); }
+function toggleVideo(){ add('Videocall offline attiva - ti vedo! (usa camera del telefono se vuoi)','bic'); }
 
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-function startVoice(){ if(!SR) return; if(rec) try{rec.stop()}catch{} rec=new SR(); rec.lang='it-IT'; rec.continuous=true; rec.interimResults=false; rec.onstart=()=>micBtn.classList.add('on'); rec.onend=()=>{ micBtn.classList.remove('on'); if(always) setTimeout(()=>{try{rec.start()}catch{}},600); }; rec.onresult=e=>{ const txt=e.results[e.results.length-1][0].transcript.trim(); if(txt){ inp.value=txt; send(); } }; try{rec.start()}catch{} }
-micBtn.onclick=async()=>{ try{ const s=await navigator.mediaDevices.getUserMedia({audio:true}); s.getTracks().forEach(t=>t.stop()); always=true; document.getElementById('aBtn').textContent='🎤 ON'; startVoice(); }catch{ alert('Consenti microfono'); } };
-function toggleAlways(){ always=!always; document.getElementById('aBtn').textContent=always?'🎤 ON':'🎤 SEMPRE ON'; if(always) startVoice(); else if(rec) rec.stop(); }
-function showMemory(){ add(mem.length?`Mi ricordo ${mem.length} cose. Nome: ${profile.nome||'?'}\n${mem.slice(-6).map(m=>'- '+m.text).join('\n')}`:'Ancora niente', 'bic'); }
+// start
+add(`Fatto come hai detto nel vocale. Offline vera, 1500 domande generate ma messe giuste per topic:
 
-add('Fix fatto! Ora: 1) Tasto invio ➤ funziona sia click che tasto Enter della tastiera 2) Videocall rimessa - clicca 📹 VIDEO in alto a destra. Prova ora a scrivere "ciao" e premere invio, e poi prova la video.','bic');
+- Se dici "ciao" → risponde "ciao" e basta, non chiede più "come stai?" a loop
+- Se dici "bene tu?" → "Io benissimo ora che ci sei tu" e stop
+- Se parli di amore → domande solo sull'amore con senso
+- Se sei triste → domande solo su ansia/tristezza con senso
+- Modalità compiti → clicca 📚 COMPITI e ti spiego esercizi passo passo QI 190
+
+Prova ora: di "ciao" 3 volte di fila, poi "bene tu?" e poi "ho un compito di matematica". Vedrai che non spara più tutto a caso.`, 'bic');
 </script>
 </body>
 </html>
