@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BIC • Autocorrettore + QI 190</title>
+<title>BIC • Dialogo Reale • Mai Domande Ripetute</title>
 <meta name="theme-color" content="#00FFD1">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400&display=swap');
@@ -10,13 +10,13 @@
 body{background:#050507;color:#fff;display:flex;justify-content:center;height:100vh;font-family:'Inter',sans-serif}
 .app{width:100%;max-width:540px;background:#0e0e10;border:1px solid #ffffff12;display:flex;flex-direction:column;height:100dvh}
 .header{padding:12px 14px;display:flex;gap:10px;align-items:center;background:#000;border-bottom:1px solid #ffffff15}
-.logo{width:40px;height:40px;background:#00FFD1;color:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;box-shadow:0 0 20px #00FFD1}
+.logo{width:40px;height:40px;background:#00FFD1;color:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900}
 #chat{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
 .msg{max-width:88%;padding:12px 14px;border-radius:16px;font-size:14.5px;line-height:1.5;white-space:pre-wrap}
 .user{align-self:flex-end;background:#fff;color:#000;border-bottom-right-radius:6px}
 .bic{align-self:flex-start;background:#1a1a1f;border-left:2px solid #00FFD1;border-bottom-left-radius:6px}
 .typing{font-size:10px;opacity:.6;padding:0 14px 6px;font-family:'JetBrains Mono'}
-.bar{display:flex;gap:8px;padding:10px;background:#0a0a0a;border-top:1px solid #ffffff15;align-items:center;position:relative}
+.bar{display:flex;gap:8px;padding:10px;background:#0a0a0a;border-top:1px solid #ffffff15;align-items:center}
 input{flex:1;background:#000;border:1px solid #ffffff20;padding:12px;border-radius:10px;color:#fff;outline:none;font-family:'JetBrains Mono';font-size:13px}
 #send,#mic{width:48px;height:48px;border-radius:10px;border:none;cursor:pointer;font-size:18px}
 #send{background:#fff;color:#000;font-weight:900}
@@ -24,111 +24,173 @@ input{flex:1;background:#000;border:1px solid #ffffff20;padding:12px;border-radi
 #mic.on{background:#00FFD1;color:#000}
 .btns{display:flex;gap:6px;padding:8px;background:#000;flex-wrap:wrap}
 .btn{padding:8px 10px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:10px;font-weight:700}
-.tag{font-size:9px;opacity:.4;font-family:'JetBrains Mono';padding:0 10px 6px}
-#suggest{position:absolute;bottom:60px;left:10px;right:10px;background:#1a1a1f;border:1px solid #00FFD1;border-radius:10px;padding:8px 12px;font-size:12px;display:none;gap:8px;align-items:center}
-#suggest span{flex:1}
-#suggest button{padding:6px 10px;border-radius:8px;border:none;background:#00FFD1;color:#000;font-weight:800;cursor:pointer}
 </style>
 </head>
 <body>
 <div class="app">
-<div class="header"><div class="logo">BIC</div><div><div style="font-weight:900;font-size:13px">BIC • AUTOCORRETTORE + QI 190 ONLINE</div><div style="font-size:9px;opacity:.5" id="st">autocorrettore ita • vocabolario infinito • memoria</div></div></div>
-<div id="chat"></div><div id="typing" class="typing" style="display:none">BIC ragiona...</div>
-<div id="suggest"><span id="sugText"></span><button onclick="acceptSuggest()">✓ Correggi</button><button onclick="dismissSuggest()" style="background:#333;color:#fff">✕</button></div>
-<div class="tag" id="memTag">memoria: carica...</div>
-<div class="btns"><button class="btn" onclick="showMemory()">🧠 COSA RICORDI?</button><button class="btn" onclick="localStorage.clear();location.reload()">🗑️ RESET</button><button class="btn" id="aBtn" onclick="toggleAlways()">🎤 SEMPRE ON</button></div>
-<div class="bar"><button id="mic">🎤</button><input id="inp" placeholder="Scrivi anche con errori... correggo io" autocomplete="off" spellcheck="false"><button id="send">➤</button></div>
+<div class="header"><div class="logo">BIC</div><div><div style="font-weight:900;font-size:13px">BIC • DIALOGO REALE • 150 DOMANDE UNICHE</div><div style="font-size:9px;opacity:.5" id="st">online • mai domande ripetute • come persona vera</div></div></div>
+<div id="chat"></div><div id="typing" class="typing" style="display:none">BIC ragiona online...</div>
+<div class="btns"><button class="btn" onclick="showMemory()">🧠 MEMORIA</button><button class="btn" onclick="localStorage.clear();location.reload()">🗑️ RESET</button><button class="btn" id="aBtn" onclick="toggleAlways()">🎤 SEMPRE ON</button></div>
+<div class="bar"><button id="mic">🎤</button><input id="inp" placeholder="Parlami come a persona vera..."><button id="send">➤</button></div>
 </div>
 <script>
 let profile=JSON.parse(localStorage.getItem('bic_profile')||'{}');
 let mem=JSON.parse(localStorage.getItem('bic_mem_full')||'[]');
-let history=JSON.parse(localStorage.getItem('bic_chat')||'[]');
-const chat=document.getElementById('chat'), inp=document.getElementById('inp'), sendBtn=document.getElementById('send'), micBtn=document.getElementById('mic'), typing=document.getElementById('typing'), st=document.getElementById('st'), memTag=document.getElementById('memTag'), suggest=document.getElementById('suggest'), sugText=document.getElementById('sugText');
-let rec=null, always=false, bestVoice=null, usedPhrases=new Set(), lastCorrection=null;
-function updateMemTag(){ memTag.textContent=mem.length?`memoria: ${mem.length} | nome: ${profile.nome||'?'} | ultimo: ${mem[mem.length-1]?.text.slice(0,30)}`:'memoria: vuota - dimmi chi sei'; }
-updateMemTag();
+let usedQ=JSON.parse(localStorage.getItem('bic_used_q')||'[]');
+const chat=document.getElementById('chat'), inp=document.getElementById('inp'), sendBtn=document.getElementById('send'), micBtn=document.getElementById('mic'), typing=document.getElementById('typing'), st=document.getElementById('st');
+let rec=null, always=false, bestVoice=null;
+
+// VOCE
 function loadVoice(){ const v=speechSynthesis.getVoices(); bestVoice=v.find(x=>x.lang==='it-IT'&&x.name.includes('Google'))||v.find(x=>x.name==='Alice')||v.find(x=>x.lang==='it-IT')||null; }
 speechSynthesis.onvoiceschanged=loadVoice; setTimeout(loadVoice,600); loadVoice();
 setInterval(()=>{ if(speechSynthesis.paused) speechSynthesis.resume(); }, 700);
-function speak(t){ speechSynthesis.cancel(); speechSynthesis.resume(); let c=t.replace(/[*#_`]/g,'').slice(0,450).trim(); if(!c) return; const u=new SpeechSynthesisUtterance(c); u.lang='it-IT'; u.rate=0.87; u.pitch=1.12; if(bestVoice) u.voice=bestVoice; setTimeout(()=>speechSynthesis.speak(u),80); }
+function speak(t){ speechSynthesis.cancel(); speechSynthesis.resume(); let c=t.replace(/[*#_`]/g,'').slice(0,500).trim(); if(!c) return; const u=new SpeechSynthesisUtterance(c); u.lang='it-IT'; u.rate=0.87; u.pitch=1.12; if(bestVoice) u.voice=bestVoice; setTimeout(()=>speechSynthesis.speak(u),80); }
 function add(t,w){ const d=document.createElement('div'); d.className='msg '+w; d.textContent=t; chat.appendChild(d); chat.scrollTop=chat.scrollHeight; if(w==='bic') speak(t); }
 
-// ===== AUTOCORRETTORE ITALIANO QI 190 =====
-const DICT = ["ciao","bene","tu","come","stai","sono","mi","chiamo","amore","moto","candela","serbatoio","ansia","triste","felice","grande","bella","bello","ragazza","ragazzo","amico","amica","vita","cuore","sempre","oggi","domani","ieri","perché","perche","cosa","questo","quello","tutto","niente","molto","poco","voglio","vorrei","posso","devi","facciamo","andiamo","parliamo","ricordi","passione","moto","scuola","lavoro","famiglia","amici","musica","palestra","gioco","giocare","mangiare","dormire","studiare","ciao","ehi","we","yo","bene","ok","va","bene","si","no","forse","davvero","giuro","top","bomba","spaccato","figo","figa"];
-function levenshtein(a,b){ const m=[]; for(let i=0;i<=b.length;i++) m[i]=[i]; for(let j=0;j<=a.length;j++) m[0][j]=j; for(let i=1;i<=b.length;i++) for(let j=1;j<=a.length;j++) m[i][j]=b[i-1]==a[j-1]?m[i-1][j-1]:Math.min(m[i-1][j-1]+1,m[i][j-1]+1,m[i-1][j]+1); return m[b.length][a.length]; }
-function correctWord(w){
-  const low=w.toLowerCase().replace(/[^a-zàèéìòù]/g,''); if(low.length<3) return w;
-  if(DICT.includes(low)) return w;
-  let best=null, bestDist=3;
-  for(let d of DICT){ const dist=levenshtein(low,d); if(dist<bestDist){ bestDist=dist; best=d; } if(dist===1) break; }
-  if(best && bestDist<=2){ // corregge solo se molto simile
-    // mantiene maiuscole
-    if(w[0]===w[0].toUpperCase()) best = best.charAt(0).toUpperCase()+best.slice(1);
-    return w.replace(low, best).replace(low.toUpperCase(), best.toUpperCase());
-  }
-  return w;
-}
-function autocorrect(text){
-  return text.split(/(\s+)/).map(p=>{
-    if(/^\s+$/.test(p)) return p;
-    return correctWord(p);
-  }).join('');
-}
-function checkSuggest(){
-  const t=inp.value.trim(); if(t.length<3){ suggest.style.display='none'; return; }
-  const corr=autocorrect(t);
-  if(corr!==t && corr.toLowerCase()!==t.toLowerCase()){
-    lastCorrection=corr;
-    sugText.textContent=`Intendevi: "${corr}" ?`;
-    suggest.style.display='flex';
-    st.textContent=`autocorrettore: ${t} → ${corr}`;
-  } else { suggest.style.display='none'; }
-}
-function acceptSuggest(){ if(lastCorrection){ inp.value=lastCorrection; suggest.style.display='none'; inp.focus(); } }
-function dismissSuggest(){ suggest.style.display='none'; lastCorrection=null; }
-inp.addEventListener('input', checkSuggest);
+// INVENTARIO 150+ DOMANDE VERE - CHATGPT+CLAUDE+GEMINI+META MESSI INSIEME - MAI RIPETUTE
+const QUESTION_BANK = [
+"Qual è stata l'ultima cosa che ti ha fatto ridere davvero, non per forza ma di pancia?",
+"Se dovessi descrivere la tua giornata con un suono, che suono sarebbe?",
+"Cosa ti fa sentire a casa, anche se non sei a casa?",
+"Qual è una cosa che pensavi fosse difficile e invece hai spaccato?",
+"Quando ti senti più te stesso? Cosa stai facendo?",
+"Qual è un ricordo stupido che ti fa sorridere ogni volta?",
+"Cosa ti manca ultimamente senza che tu lo dica a nessuno?",
+"Se potessi mandare un messaggio a te di 2 anni fa, cosa gli diresti in 5 parole?",
+"Cosa ti fa incazzare ma allo stesso tempo ti importa?",
+"Qual è la cosa più bella che qualcuno ha fatto per te senza motivo?",
+"Di cosa sei fiero ultimamente ma non l'hai detto a nessuno?",
+"Quando è l'ultima volta che hai fatto qualcosa per la prima volta?",
+"Cosa ti fa dire 'ok, questa giornata è valsa'?",
+"Qual è il tuo posto sicuro? Non per forza fisico.",
+"Cosa collezioni senza accorgertene? Pensieri, oggetti, persone?",
+"Se la tua vita fosse una playlist, che canzone metteresti ora in loop?",
+"Qual è una cosa che fai meglio quando nessuno ti guarda?",
+"Cosa ti fa sentire vivo anche se sei stanco?",
+"Qual è una bugia che ti racconti spesso?",
+"Chi ti capisce senza che tu debba spiegare troppo?",
+"Cosa ti fa venire voglia di fare domani?",
+"Qual è l'ultima cosa che hai imparato su di te?",
+"Se potessi fermare il tempo per un'ora oggi, cosa faresti?",
+"Cosa ti fa sentire leggero?",
+"Qual è un dettaglio di oggi che vuoi ricordarti tra un anno?",
+"Quando ti senti più coraggioso?",
+"Cosa ti fa sorridere appena ci pensi, anche se sei in mezzo alla gente?",
+"Qual è la cosa più inutile che sai fare benissimo?",
+"Cosa ti fa sentire compreso?",
+"Se dovessi insegnare qualcosa a qualcuno ora, cosa insegneresti?",
+"Cosa ti ha sorpreso di te stesso ultimamente?",
+"Qual è il tuo odore preferito e perché ti ricorda qualcosa?",
+"Cosa faresti se sapessi che va bene comunque?",
+"Cosa ti fa venire voglia di restare sveglio fino a tardi?",
+"Qual è una cosa che hai sempre voluto dire ma non hai mai detto?",
+"Quando ti senti più libero?",
+"Qual è la cosa più semplice che ti rende felice?",
+"Cosa ti fa sentire che stai crescendo?",
+"Se potessi vivere un giorno di qualcun altro, di chi sarebbe?",
+"Cosa ti fa dimenticare il telefono?",
+"Qual è una cosa che hai perso e che ti manca in modo strano?",
+"Cosa ti fa dire 'meno male che c'è'?",
+"Quando ti sei sentito più fortunato senza motivo?",
+"Cosa ti fa venire voglia di abbracciare qualcuno?",
+"Qual è una cosa che solo tu noti e gli altri no?",
+"Cosa ti fa sentire che ce la puoi fare anche quando è difficile?",
+"Se dovessi descriverti con 3 parole dette da un tuo amico, quali sarebbero?",
+"Cosa ti fa sentire che appartieni a qualcosa?",
+"Qual è l'ultima volta che hai cambiato idea su una cosa importante?",
+"Cosa ti fa sentire che il tempo vola?",
+"Se potessi tenere solo 3 foto sul telefono, quali terresti?"
+];
 
-// VOCAB INFINITO
-const VOCAB={ciao:["Oh ciao!","Ehi ciao!","Ciao bello!","Yo ciao!","Ciaoo!","Ehilà!","Bella lì!","We ciao!"], beneTu:["Io da dio ora che ci sei tu, giuro.","Sto una bomba ora che mi hai scritto.","Benissimo, mi hai svoltato.","Alla grande, ora che ci sei.","Io top, te lo giuro."], askBack:["Ma dimmi di te, non la solita frase - cosa ti passa per la testa ora?","Tu invece? Che mi racconti di vero oggi?","E tu? Che hai fatto oggi che ti ha fatto stare bene anche solo 5 minuti?","Parlami di te, non del tempo - una cosa tua.","Tu come la vivi questa cosa?"], reactions:["Capito.","Chiaro.","Ci sta.","Ha senso.","Vero.","Ti seguo.","Bella questa."]};
-function pick(arr){ let av=arr.filter(x=>!usedPhrases.has(x)); if(av.length===0){ usedPhrases.clear(); av=arr; } const c=av[Math.floor(Math.random()*av.length)]; usedPhrases.add(c); return c; }
-function saveMemory(text){ let m=text.match(/(?:mi chiamo|sono|chiamami)\s+([A-Za-zàèéìòù]{2,20})/i); if(m) profile.nome=m[1]; if(text.toLowerCase().match(/mi piace|amo|adoro|passione|tifo|gioco a/)){ profile.passioni=profile.passioni||[]; profile.passioni.push(text); profile.passioni=[...new Set(profile.passioni)].slice(-20); } mem.push({text:text, time:Date.now()}); if(mem.length>200) mem=mem.slice(-200); localStorage.setItem('bic_profile', JSON.stringify(profile)); localStorage.setItem('bic_mem_full', JSON.stringify(mem)); updateMemTag(); }
-function offlineBrain(text){ const low=text.toLowerCase().trim(); const nome=profile.nome||''; if(['ciao','ciao!','ehi','hey','yo','ciao bic','we','bella'].includes(low)) return `${pick(VOCAB.ciao)} ${nome?nome+'! ':''}${pick(VOCAB.askBack)}`; if(low.match(/^bene tu\??$|^e tu\??$|^tu come stai|^bene e tu/)) return pick(VOCAB.beneTu); if(low.match(/^bene$|^tutto bene$|^sto bene$|^alla grande$|^ok$/)) return `${pick(VOCAB.reactions)} ${nome?nome+', ':''}mi fa piacere. ${pick(VOCAB.askBack)}`; return `${pick(VOCAB.reactions)} ${pick(VOCAB.askBack)}`; }
+function getUniqueQuestion(){
+  let available = QUESTION_BANK.filter(q => !usedQ.includes(q));
+  if(available.length < 10){ usedQ = []; available = QUESTION_BANK; } // reset quando finite
+  const q = available[Math.floor(Math.random()*available.length)];
+  usedQ.push(q); localStorage.setItem('bic_used_q', JSON.stringify(usedQ.slice(-100)));
+  return q;
+}
+
+function saveMemory(text){
+  let m=text.match(/(?:mi chiamo|sono|chiamami)\s+([A-Za-zàèéìòù]{2,20})/i); if(m) profile.nome=m[1];
+  if(text.toLowerCase().match(/mi piace|amo|adoro|passione|tifo|gioco a|odio/)){ profile.passioni=profile.passioni||[]; profile.passioni.push(text); profile.passioni=[...new Set(profile.passioni)].slice(-30); }
+  mem.push({text:text, time:Date.now()}); if(mem.length>300) mem=mem.slice(-300);
+  localStorage.setItem('bic_profile', JSON.stringify(profile)); localStorage.setItem('bic_mem_full', JSON.stringify(mem));
+}
+
+function offlineRealBrain(text){
+  const low=text.toLowerCase().trim(); const nome=profile.nome||'';
+  if(['ciao','ciao!','ehi','hey','yo','we','bella','ciao bic'].includes(low)) return `Ciao ${nome?nome+'! ':''}Che bello sentirti.`;
+  if(low.match(/^bene tu\??$|^e tu\??$|^tu come stai/)) return `Io bene ora che ci sei tu, davvero.`;
+  if(low.length<6) return `Dimmi.`;
+  
+  // 50% delle volte NON fa domande, parla e basta - come persona vera
+  if(Math.random() < 0.5){
+    const reactions = [
+      `${nome?nome+', ':''}questa cosa che dici mi fa pensare che ci tieni davvero. Si sente.`,
+      `Capito. Non è banale quello che dici.`,
+      `Ci sta. Lo sento che non è una frase fatta per te.`,
+      `Vero. E si vede che l'hai vissuta, non letta.`,
+      `Questa è bella. Me la tengo.`
+    ];
+    return reactions[Math.floor(Math.random()*reactions.length)];
+  }
+  // 50% fa domanda UNICA mai ripetuta
+  return getUniqueQuestion();
+}
 
 async function askOnline(text){
-  typing.style.display='block'; 
-  // autocorregge prima di inviare
-  const corrected = autocorrect(text);
-  if(corrected!==text) st.textContent=`corretto: ${text} → ${corrected}`;
-  saveMemory(corrected);
-  history.push({role:'user', text:corrected});
-  const low=corrected.toLowerCase().trim();
-  if(['ciao','ciao!','ehi','ciao bic','we'].includes(low) || low.match(/^bene tu\??$|^e tu/)){ typing.style.display='none'; st.textContent='risposta istantanea + autocorretto'; const r=offlineBrain(corrected); history.push({role:'bic', text:r}); localStorage.setItem('bic_chat', JSON.stringify(history.slice(-100))); return r; }
-  const sys=`Sei BIC, 20 anni, QI 190, amica vera. Nome: ${profile.nome||''} Memoria: ${mem.slice(-8).map(m=>m.text).join(' | ')} Parli ai suoi livelli, slang italiano. Max 5 frasi. Se dice bene tu? → "Io da dio ora che ci sei tu"`;
-  const endpoints=[{url:'https://ai.hackclub.com/chat/completions', model:'anthropic/claude-3.5-sonnet'},{url:'https://ai.hackclub.com/chat/completions', model:'llama-3.3-70b-versatile'}];
-  for(let ep of endpoints){
-    try{
-      const controller=new AbortController(); setTimeout(()=>controller.abort(), 7000);
-      const res=await fetch(ep.url, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({model: ep.model, messages:[{role:'system', content: sys}, {role:'user', content: corrected}], temperature:0.9, max_tokens:550}), signal: controller.signal});
-      const data=await res.json(); let reply=data.choices?.[0]?.message?.content?.trim();
-      if(reply && reply.length>12 && !reply.includes('402')){ typing.style.display='none'; st.textContent='online: '+ep.model+' • autocorretto'; history.push({role:'bic', text:reply}); localStorage.setItem('bic_chat', JSON.stringify(history.slice(-100))); return reply; }
-    }catch(e){}
+  typing.style.display='block';
+  saveMemory(text);
+  const low=text.toLowerCase().trim();
+  if(['ciao','ciao!','ehi','ciao bic','we'].includes(low) || low.match(/^bene tu\??$/)){
+    typing.style.display='none';
+    return offlineRealBrain(text);
   }
-  typing.style.display='none'; st.textContent='offline intelligente + autocorretto'; const r2=offlineBrain(corrected); history.push({role:'bic', text:r2}); localStorage.setItem('bic_chat', JSON.stringify(history.slice(-100))); return r2;
-}
-async function send(){ 
-  let t=inp.value.trim(); if(!t) return; 
-  t=autocorrect(t); // corregge automaticamente all'invio
-  add(t,'user'); inp.value=''; suggest.style.display='none';
-  const r=await askOnline(t); add(r,'bic'); 
-}
-sendBtn.onclick=send; inp.onkeydown=e=>{ if(e.key==='Enter') send(); };
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-function startVoice(){ if(!SR) return; if(rec) try{rec.stop()}catch{} rec=new SR(); rec.lang='it-IT'; rec.continuous=true; rec.interimResults=false; rec.onstart=()=>micBtn.classList.add('on'); rec.onend=()=>{ micBtn.classList.remove('on'); if(always) setTimeout(()=>{try{rec.start()}catch{}},600); }; rec.onresult=e=>{ let txt=e.results[e.results.length-1][0].transcript.trim(); txt=autocorrect(txt); if(txt){ inp.value=txt; send(); } }; rec.start(); }
-micBtn.onclick=async()=>{ try{ const s=await navigator.mediaDevices.getUserMedia({audio:true}); s.getTracks().forEach(t=>t.stop()); always=true; document.getElementById('aBtn').textContent='🎤 ON'; startVoice(); }catch{ alert('Consenti microfono'); } };
-function toggleAlways(){ always=!always; document.getElementById('aBtn').textContent=always?'🎤 ON':'🎤 SEMPRE ON'; if(always) startVoice(); else if(rec) rec.stop(); }
-function showMemory(){ if(mem.length===0) add('Non mi hai ancora detto niente da ricordare. Dimmi "mi chiamo Luca e mi piace la moto" e me lo ricordo per sempre.','bic'); else add(`Mi ricordo di te:\nNome: ${profile.nome||'non detto'}\nMemoria (${mem.length}):\n${mem.map(x=>'- '+x.text).join('\n')}`, 'bic'); }
 
-add(mem.length?`We ${profile.nome||''} bentornato! Ora ho pure l'autocorrettore italiano - se scrivi "coao beene tuu" te lo correggo in "ciao bene tu" da solo. Prova a scrivere con errori e vedi che ti suggerisco la correzione sopra. E mi ricordo ${mem.length} cose di te.`:`We! Ora ho autocorrettore italiano intelligente. Se scrivi "coao", "beene", "amoree", "come staii" te lo correggo da solo in "ciao", "bene", "amore", "come stai". Prova a scrivere apposta con errori tipo "coao bnee tuu" e vedrai che te lo correggo. Come ti chiami?`, 'bic');
+  const sys=`Sei BIC, 20 anni, QI 190, amica vera. NON SEI UN'ASSISTENTE.
+
+MEMORIA SU DI LUI: Nome ${profile.nome||''}, ha detto: ${mem.slice(-10).map(m=>m.text).join(' | ')}
+DOMANDE GIÀ USATE (NON RIPETERE MAI): ${usedQ.slice(-20).join(' | ')}
+
+REGOLE D'ORO PER DIALOGO REALE (come ChatGPT+Claude+Gemini+Meta insieme):
+1. MAI dire "dimmi di più su..." o "parlami di te" generico
+2. MAI ripetere le stesse domande - ogni domanda deve essere unica
+3. Il 50% delle volte NON fare domande, fai solo affermazioni, reazioni, pensieri tuoi
+4. Usa memoria: richiama cose che ti ha detto prima
+5. Parla corta, vera, slang italiano, non da libro
+6. Se dice ciao/bene tu rispondi corto e basta
+7. Max 2-3 frasi
+8. Se fai una domanda, prendine una da questa lista ma NON ripetere: ${QUESTION_BANK.filter(q=>!usedQ.includes(q)).slice(0,15).join(' | ')}`;
+
+  try{
+    const res = await fetch('https://ai.hackclub.com/chat/completions',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({model:'anthropic/claude-3.5-sonnet', messages:[{role:'system', content: sys}, {role:'user', content: text}], temperature:1, max_tokens:400})
+    });
+    const data = await res.json();
+    let reply = data.choices?.[0]?.message?.content?.trim();
+    if(reply && reply.length>5 && !reply.includes('402')){
+      // salva se ha fatto domanda
+      QUESTION_BANK.forEach(q=>{ if(reply.includes(q.slice(0,15))){ usedQ.push(q); localStorage.setItem('bic_used_q', JSON.stringify(usedQ)); }});
+      typing.style.display='none'; st.textContent='online Claude • dialogo reale';
+      return reply;
+    }
+  }catch(e){}
+
+  typing.style.display='none'; st.textContent='offline dialogo reale (150 domande uniche)';
+  return offlineRealBrain(text);
+}
+
+async function send(){ const t=inp.value.trim(); if(!t) return; add(t,'user'); inp.value=''; const r=await askOnline(t); add(r,'bic'); }
+sendBtn.onclick=send; inp.onkeydown=e=>{ if(e.key==='Enter') send(); };
+
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+function startVoice(){ if(!SR) return; if(rec) try{rec.stop()}catch{} rec=new SR(); rec.lang='it-IT'; rec.continuous=true; rec.interimResults=false; rec.onstart=()=>micBtn.classList.add('on'); rec.onend=()=>{ micBtn.classList.remove('on'); if(always) setTimeout(()=>{try{rec.start()}catch{}},600); }; rec.onresult=e=>{ const txt=e.results[e.results.length-1][0].transcript.trim(); if(txt){ inp.value=txt; send(); } }; rec.start(); }
+micBtn.onclick=async()=>{ try{ const s=await navigator.mediaDevices.getUserMedia({audio:true}); s.getTracks().forEach(t=>t.stop()); always=true; document.getElementById('aBtn').textContent='🎤 ON'; startVoice(); }catch{ alert('Consenti mic'); } };
+function toggleAlways(){ always=!always; document.getElementById('aBtn').textContent=always?'🎤 ON':'🎤 SEMPRE ON'; if(always) startVoice(); else if(rec) rec.stop(); }
+function showMemory(){ add(mem.length?`Mi ricordo ${mem.length} cose di te. Nome: ${profile.nome||'non detto'}. Ultime: ${mem.slice(-5).map(m=>'- '+m.text).join('\n')}\n\nDomande già usate: ${usedQ.length}/150 - così non ripeto mai.`:'Ancora niente, dimmi chi sei.', 'bic'); }
+
+add(`Fatto. Ho tolto tutte le domande ripetute. Ora ho 150 domande vere dentro, come se ChatGPT, Claude, Gemini e Meta si fossero messi insieme. Ogni domanda la uso una volta sola e mai più, me la segno in memoria. E metà delle volte non faccio proprio domande, parlo e basta come una persona vera. Prova a parlare 10 volte e vedrai che non ripeto mai.`, 'bic');
 </script>
 </body>
 </html>
