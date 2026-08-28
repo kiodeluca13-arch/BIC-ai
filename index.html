@@ -2,94 +2,104 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>BIC NEON VOICE FIX</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIC ALWAYS ON</title>
 <meta name="theme-color" content="#00FFD1">
+<link rel="manifest" href="manifest.json">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@500;800&display=swap');
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#050507;color:#fff;font-family:'Inter',sans-serif;display:flex;justify-content:center;height:100vh}
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;font-family:'JetBrains Mono',monospace}
+body{background:#050507;color:#fff;display:flex;justify-content:center;height:100vh}
 .app{width:100%;max-width:480px;background:#0e0e10;border:1px solid #ffffff15;display:flex;flex-direction:column;height:100dvh}
 .header{padding:16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #ffffff15}
-.logo{width:40px;height:40px;background:#fff;color:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800}
-#voiceBtn{margin-left:auto;width:56px;height:56px;border-radius:50%;border:2px solid #00FFD1;background:#000;color:#00FFD1;font-size:26px;cursor:pointer}
-#voiceBtn.on{background:#00FFD1;color:#000;box-shadow:0 0 30px #00FFD1}
-#status{font-family:'JetBrains Mono';font-size:10px;opacity:.6;margin-top:3px}
-#debug{font-family:'JetBrains Mono';font-size:10px;padding:8px 14px;background:#00FFD1;color:#000;display:none}
-#debug.show{display:block}
+.logo{width:40px;height:40px;background:#00FFD1;color:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;box-shadow:0 0 20px #00FFD1}
+#status{font-size:10px;opacity:.7;margin-top:3px}
+#live{margin-left:auto;padding:8px 12px;border-radius:20px;border:1px solid #00FFD1;color:#00FFD1;font-size:10px}
+#live.on{background:#00FFD1;color:#000;box-shadow:0 0 20px #00FFD1;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
 #chat{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
-.msg{max-width:85%;padding:12px 14px;border-radius:14px;font-size:14px;line-height:1.4}
+.msg{max-width:85%;padding:12px 14px;border-radius:14px;font-size:14px}
 .user{align-self:flex-end;background:#fff;color:#000}
 .bic{align-self:flex-start;background:#1c1c1f;border-left:2px solid #00FFD1}
 .bar{display:flex;gap:8px;padding:12px;border-top:1px solid #ffffff15}
-input{flex:1;background:#000;border:1px solid #ffffff25;padding:12px;border-radius:12px;color:#fff;outline:none;font-family:'JetBrains Mono'}
-#send{width:46px;height:46px;background:#fff;border:none;border-radius:12px;font-weight:800}
+input{flex:1;background:#000;border:1px solid #ffffff25;padding:12px;border-radius:12px;color:#fff;outline:none}
+#send{width:46px;height:46px;background:#00FFD1;border:none;border-radius:12px;font-weight:800;color:#000}
+.install{background:#00FFD1;color:#000;padding:10px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;display:none}
+.install.show{display:block}
 </style>
 </head>
 <body>
 <div class="app">
+  <div class="install" id="installBtn">📲 CLICCA QUI PER INSTALLARE BIC COME APP - COSI' RESTA IN BACKGROUND</div>
   <div class="header">
     <div class="logo">BIC</div>
-    <div><div style="font-weight:800;letter-spacing:2px">BIC.NEON</div><div id="status">PREMI 🎤 E PARLA - SERVE CHROME</div></div>
-    <button id="voiceBtn">🎤</button>
+    <div><div style="font-weight:800;letter-spacing:2px">BIC.ALWAYS</div><div id="status">Avvio automatico in corso...</div></div>
+    <div id="live">OFF</div>
   </div>
-  <div id="debug">LOG: in attesa...</div>
   <div id="chat"></div>
   <div class="bar">
-    <input id="input" placeholder="Scrivi o premi 🎤">
+    <input id="input" placeholder="BIC è sempre in ascolto...">
     <button id="send">➤</button>
   </div>
 </div>
-
 <script>
-const chat=document.getElementById('chat'), input=document.getElementById('input'), sendBtn=document.getElementById('send'), voiceBtn=document.getElementById('voiceBtn'), statusEl=document.getElementById('status'), debugEl=document.getElementById('debug');
+const chat=document.getElementById('chat'), input=document.getElementById('input'), sendBtn=document.getElementById('send'), statusEl=document.getElementById('status'), liveEl=document.getElementById('live');
 let mem=JSON.parse(localStorage.getItem('bic_mem')||'[]');
-let rec=null, listening=false, shouldRestart=false;
+let rec=null, wakeLock=null;
 
-function log(t){ debugEl.classList.add('show'); debugEl.textContent='LOG: '+t; console.log(t); }
 function add(t,w){ const d=document.createElement('div'); d.className='msg '+w; d.textContent=t; chat.appendChild(d); chat.scrollTop=chat.scrollHeight; if(w==='bic'){ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='it-IT'; speechSynthesis.speak(u);} }
-function answer(q){ mem.push({q}); localStorage.setItem('bic_mem', JSON.stringify(mem.slice(-500))); if(q.toLowerCase().includes('ricordi')) return `Ho ${mem.length} cose tue, ultima: ${mem[mem.length-2]?.q||'nessuna'}`; return `Salvato: "${q}". Me lo ricordo.`; }
+function answer(q){ mem.push({q}); localStorage.setItem('bic_mem', JSON.stringify(mem.slice(-500))); if(q.toLowerCase().includes('ricordi')) return `Ho ${mem.length} ricordi, ultima: ${mem[mem.length-2]?.q||'nessuna'}`; return `Salvato: "${q}". Me lo ricordo sempre.`; }
 function sendMsg(){ const t=input.value.trim(); if(!t) return; add(t,'user'); input.value=''; setTimeout(()=>add(answer(t),'bic'),300); }
 sendBtn.onclick=sendMsg; input.onkeydown=e=>{ if(e.key==='Enter') sendMsg(); };
 
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+async function keepAwake(){ try{ if('wakeLock' in navigator){ wakeLock=await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release',()=>{ console.log('WakeLock rilasciato'); }); } }catch(e){} }
+
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 if(!SR){
-  statusEl.textContent='APRI CON CHROME ANDROID - VOCE NON SUPPORTATA QUI';
-  add('Stai aprendo BIC dentro WhatsApp/Instagram: lì il microfono è bloccato. Apri il link con Chrome: 3 puntini > Apri in Chrome','bic');
+  statusEl.textContent='Apri con Chrome Android';
+  add('Apri questo link con Chrome, non da WhatsApp. WhatsApp blocca il microfono.','bic');
 }else{
-  rec=new SR(); rec.lang='it-IT'; rec.continuous=true; rec.interimResults=true;
-  rec.onstart=()=>{ listening=true; shouldRestart=true; voiceBtn.classList.add('on'); statusEl.textContent='🔴 TI ASCOLTO - DI "EHI BIC"'; log('Microfono ON - parla ora'); };
-  rec.onend=()=>{ listening=false; voiceBtn.classList.remove('on'); statusEl.textContent='Mic spento - ripremi 🎤'; log('Mic OFF - code: '+ (shouldRestart?' restart' : ' stop')); if(shouldRestart){ setTimeout(()=>{ try{ rec.start(); log('Riavvio automatico...'); }catch(e){ log('Errore restart: '+e.message); } }, 300); } };
-  rec.onerror=(e)=>{ log('ERRORE: '+e.error); statusEl.textContent='Errore: '+e.error; if(e.error==='not-allowed'){ add('Permesso microfono negato. Clicca sul lucchetto > Consenti microfono e ricarica','bic'); shouldRestart=false; } };
+  rec=new SR(); rec.lang='it-IT'; rec.continuous=true; rec.interimResults=false;
+  rec.onstart=()=>{ liveEl.textContent='● LIVE'; liveEl.classList.add('on'); statusEl.textContent='SEMPRE ATTIVA - Dì "Ehi BIC"'; keepAwake(); };
+  rec.onend=()=>{ liveEl.textContent='RESTART...'; liveEl.classList.remove('on'); statusEl.textContent='Riavvio ascolto automatico...'; setTimeout(()=>{ try{ rec.start(); }catch(e){} }, 300); };
+  rec.onerror=(e)=>{ statusEl.textContent='Errore: '+e.error+' - riavvio...'; if(e.error==='not-allowed'){ localStorage.removeItem('bic_allowed'); add('Hai bloccato il microfono. Clicca sul lucchetto > Consenti microfono','bic'); return; } setTimeout(()=>{ try{ rec.start(); }catch{} }, 1000); };
   rec.onresult=(e)=>{
-    let finalText=''; let interim='';
-    for(let i=e.resultIndex; i<e.results.length; i++){ if(e.results[i].isFinal) finalText+=e.results[i][0].transcript+' '; else interim+=e.results[i][0].transcript+' '; }
-    if(interim) log('Sento: '+interim);
-    if(finalText){
-      finalText=finalText.trim(); log('FINALE: '+finalText); statusEl.textContent='Sentito: '+finalText;
-      let low=finalText.toLowerCase();
-      // accetta tutte le varianti
-      if(low.includes('ehi bic')||low.includes('ehi big')||low.includes('hey bic')||low.includes('bic')){
-        let clean=finalText.replace(/ehi bic/gi,'').replace(/ehi big/gi,'').replace(/hey bic/gi,'').replace(/\bbic\b/gi,'').trim();
-        if(clean.length>0){ input.value=clean; sendMsg(); }else{ add('Dimmi tutto, ti ascolto!','bic'); }
-      }else{
-        // se non dice ehi bic, manda comunque
-        input.value=finalText; sendMsg();
-      }
+    let txt=e.results[e.results.length-1][0].transcript.trim();
+    console.log('Sentito:',txt);
+    if(txt.toLowerCase().includes('ehi bic')||txt.toLowerCase().includes('ehi big')||txt.toLowerCase().includes('bic')||txt.length>2){
+      let clean=txt.replace(/ehi bic/gi,'').replace(/ehi big/gi,'').replace(/bic/gi,'').trim();
+      if(clean.length>1){ input.value=clean; sendMsg(); } else if(clean.length===0){ add('Dimmi, sono qui! Ti ascolto sempre.','bic'); }
     }
   };
-  voiceBtn.onclick=async()=>{
-    if(listening){ shouldRestart=false; try{ rec.stop(); }catch{} return; }
+
+  // AVVIO AUTOMATICO
+  async function autoStart(){
     try{
-      log('Chiedo permesso microfono...');
       const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-      stream.getTracks().forEach(t=>t.stop()); // chiudi subito, serve solo per sbloccare
-      shouldRestart=true;
+      stream.getTracks().forEach(t=>t.stop());
+      localStorage.setItem('bic_allowed','1');
       rec.start();
-    }catch(err){ log('Permesso negato: '+err.message); alert('Devi dare permesso: lucchetto in alto > Microfono > Consenti'); }
-  };
+      add(mem.length?`Sono tornata! Ho ${mem.length} ricordi. Sono sempre attiva, basta dire Ehi BIC.`:'Ciao! Ora sono SEMPRE attiva. Non devi più premere niente. Dì solo "Ehi BIC".','bic');
+    }catch(err){
+      statusEl.textContent='Clicca ovunque per attivare BIC';
+      document.body.addEventListener('click', async function handler(){
+        document.body.removeEventListener('click', handler);
+        try{ const s=await navigator.mediaDevices.getUserMedia({audio:true}); s.getTracks().forEach(t=>t.stop()); rec.start(); }catch(e){ alert('Consenti microfono sul lucchetto'); }
+      }, {once:true});
+      add('Tocca una volta lo schermo per attivarmi. Dopo starò sempre accesa.','bic');
+    }
+  }
+  // Se aveva già dato permesso, parte da sola
+  if(localStorage.getItem('bic_allowed')) autoStart(); else autoStart();
+
+  // Riparti quando torni sull'app
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ try{ rec.start(); keepAwake(); }catch{} } });
 }
-add(mem.length?`Bentornato! Ho ${mem.length} ricordi.`:'Ciao! Premi 🎤 e dì "Ehi BIC come stai". Se non funziona, apri con CHROME, non da WhatsApp.','bic');
+
+// Install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt=e; document.getElementById('installBtn').classList.add('show'); });
+document.getElementById('installBtn').onclick=()=>{ if(deferredPrompt){ deferredPrompt.prompt(); } };
 </script>
 </body>
 </html>
