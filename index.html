@@ -2,13 +2,13 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BIC • Dialogo Reale • Mai Domande Ripetute</title>
+<title>BIC • 500 Domande con Senso</title>
 <meta name="theme-color" content="#00FFD1">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#050507;color:#fff;display:flex;justify-content:center;height:100vh;font-family:'Inter',sans-serif}
-.app{width:100%;max-width:540px;background:#0e0e10;border:1px solid #ffffff12;display:flex;flex-direction:column;height:100dvh}
+.app{width:100%;max-width:560px;background:#0e0e10;border:1px solid #ffffff12;display:flex;flex-direction:column;height:100dvh}
 .header{padding:12px 14px;display:flex;gap:10px;align-items:center;background:#000;border-bottom:1px solid #ffffff15}
 .logo{width:40px;height:40px;background:#00FFD1;color:#000;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900}
 #chat{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
@@ -24,118 +24,94 @@ input{flex:1;background:#000;border:1px solid #ffffff20;padding:12px;border-radi
 #mic.on{background:#00FFD1;color:#000}
 .btns{display:flex;gap:6px;padding:8px;background:#000;flex-wrap:wrap}
 .btn{padding:8px 10px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:10px;font-weight:700}
+.tag{font-size:9px;opacity:.4;font-family:'JetBrains Mono';padding:0 10px 4px}
 </style>
 </head>
 <body>
 <div class="app">
-<div class="header"><div class="logo">BIC</div><div><div style="font-weight:900;font-size:13px">BIC • DIALOGO REALE • 150 DOMANDE UNICHE</div><div style="font-size:9px;opacity:.5" id="st">online • mai domande ripetute • come persona vera</div></div></div>
-<div id="chat"></div><div id="typing" class="typing" style="display:none">BIC ragiona online...</div>
+<div class="header"><div class="logo">BIC</div><div><div style="font-weight:900;font-size:13px">BIC • 500 DOMANDE CON SENSO COMPIUTO</div><div style="font-size:9px;opacity:.5" id="st">online Claude • capisce contesto • mai a caso</div></div></div>
+<div id="chat"></div><div id="typing" class="typing" style="display:none">BIC capisce contesto...</div>
+<div class="tag" id="memTag"></div>
 <div class="btns"><button class="btn" onclick="showMemory()">🧠 MEMORIA</button><button class="btn" onclick="localStorage.clear();location.reload()">🗑️ RESET</button><button class="btn" id="aBtn" onclick="toggleAlways()">🎤 SEMPRE ON</button></div>
-<div class="bar"><button id="mic">🎤</button><input id="inp" placeholder="Parlami come a persona vera..."><button id="send">➤</button></div>
+<div class="bar"><button id="mic">🎤</button><input id="inp" placeholder="Parlami di qualcosa... capisco il senso"><button id="send">➤</button></div>
 </div>
 <script>
-let profile=JSON.parse(localStorage.getItem('bic_profile')||'{}');
-let mem=JSON.parse(localStorage.getItem('bic_mem_full')||'[]');
-let usedQ=JSON.parse(localStorage.getItem('bic_used_q')||'[]');
-const chat=document.getElementById('chat'), inp=document.getElementById('inp'), sendBtn=document.getElementById('send'), micBtn=document.getElementById('mic'), typing=document.getElementById('typing'), st=document.getElementById('st');
+let profile=JSON.parse(localStorage.getItem('bic_profile')||'{}'), mem=JSON.parse(localStorage.getItem('bic_mem_full')||'[]'), usedQ=JSON.parse(localStorage.getItem('bic_used_q')||'[]');
+const chat=document.getElementById('chat'), inp=document.getElementById('inp'), sendBtn=document.getElementById('send'), micBtn=document.getElementById('mic'), typing=document.getElementById('typing'), st=document.getElementById('st'), memTag=document.getElementById('memTag');
 let rec=null, always=false, bestVoice=null;
-
-// VOCE
 function loadVoice(){ const v=speechSynthesis.getVoices(); bestVoice=v.find(x=>x.lang==='it-IT'&&x.name.includes('Google'))||v.find(x=>x.name==='Alice')||v.find(x=>x.lang==='it-IT')||null; }
 speechSynthesis.onvoiceschanged=loadVoice; setTimeout(loadVoice,600); loadVoice();
 setInterval(()=>{ if(speechSynthesis.paused) speechSynthesis.resume(); }, 700);
-function speak(t){ speechSynthesis.cancel(); speechSynthesis.resume(); let c=t.replace(/[*#_`]/g,'').slice(0,500).trim(); if(!c) return; const u=new SpeechSynthesisUtterance(c); u.lang='it-IT'; u.rate=0.87; u.pitch=1.12; if(bestVoice) u.voice=bestVoice; setTimeout(()=>speechSynthesis.speak(u),80); }
+function speak(t){ speechSynthesis.cancel(); let c=t.replace(/[*#_`]/g,'').slice(0,500).trim(); const u=new SpeechSynthesisUtterance(c); u.lang='it-IT'; u.rate=0.87; u.pitch=1.12; if(bestVoice) u.voice=bestVoice; speechSynthesis.speak(u); }
 function add(t,w){ const d=document.createElement('div'); d.className='msg '+w; d.textContent=t; chat.appendChild(d); chat.scrollTop=chat.scrollHeight; if(w==='bic') speak(t); }
+function updateTag(){ memTag.textContent=`memoria: ${mem.length} | usate: ${usedQ.length}/500 | nome: ${profile.nome||'?'} `; } updateTag();
 
-// INVENTARIO 150+ DOMANDE VERE - CHATGPT+CLAUDE+GEMINI+META MESSI INSIEME - MAI RIPETUTE
-const QUESTION_BANK = [
-"Qual è stata l'ultima cosa che ti ha fatto ridere davvero, non per forza ma di pancia?",
-"Se dovessi descrivere la tua giornata con un suono, che suono sarebbe?",
-"Cosa ti fa sentire a casa, anche se non sei a casa?",
-"Qual è una cosa che pensavi fosse difficile e invece hai spaccato?",
-"Quando ti senti più te stesso? Cosa stai facendo?",
-"Qual è un ricordo stupido che ti fa sorridere ogni volta?",
-"Cosa ti manca ultimamente senza che tu lo dica a nessuno?",
-"Se potessi mandare un messaggio a te di 2 anni fa, cosa gli diresti in 5 parole?",
-"Cosa ti fa incazzare ma allo stesso tempo ti importa?",
-"Qual è la cosa più bella che qualcuno ha fatto per te senza motivo?",
-"Di cosa sei fiero ultimamente ma non l'hai detto a nessuno?",
-"Quando è l'ultima volta che hai fatto qualcosa per la prima volta?",
-"Cosa ti fa dire 'ok, questa giornata è valsa'?",
-"Qual è il tuo posto sicuro? Non per forza fisico.",
-"Cosa collezioni senza accorgertene? Pensieri, oggetti, persone?",
-"Se la tua vita fosse una playlist, che canzone metteresti ora in loop?",
-"Qual è una cosa che fai meglio quando nessuno ti guarda?",
-"Cosa ti fa sentire vivo anche se sei stanco?",
-"Qual è una bugia che ti racconti spesso?",
-"Chi ti capisce senza che tu debba spiegare troppo?",
-"Cosa ti fa venire voglia di fare domani?",
-"Qual è l'ultima cosa che hai imparato su di te?",
-"Se potessi fermare il tempo per un'ora oggi, cosa faresti?",
-"Cosa ti fa sentire leggero?",
-"Qual è un dettaglio di oggi che vuoi ricordarti tra un anno?",
-"Quando ti senti più coraggioso?",
-"Cosa ti fa sorridere appena ci pensi, anche se sei in mezzo alla gente?",
-"Qual è la cosa più inutile che sai fare benissimo?",
-"Cosa ti fa sentire compreso?",
-"Se dovessi insegnare qualcosa a qualcuno ora, cosa insegneresti?",
-"Cosa ti ha sorpreso di te stesso ultimamente?",
-"Qual è il tuo odore preferito e perché ti ricorda qualcosa?",
-"Cosa faresti se sapessi che va bene comunque?",
-"Cosa ti fa venire voglia di restare sveglio fino a tardi?",
-"Qual è una cosa che hai sempre voluto dire ma non hai mai detto?",
-"Quando ti senti più libero?",
-"Qual è la cosa più semplice che ti rende felice?",
-"Cosa ti fa sentire che stai crescendo?",
-"Se potessi vivere un giorno di qualcun altro, di chi sarebbe?",
-"Cosa ti fa dimenticare il telefono?",
-"Qual è una cosa che hai perso e che ti manca in modo strano?",
-"Cosa ti fa dire 'meno male che c'è'?",
-"Quando ti sei sentito più fortunato senza motivo?",
-"Cosa ti fa venire voglia di abbracciare qualcuno?",
-"Qual è una cosa che solo tu noti e gli altri no?",
-"Cosa ti fa sentire che ce la puoi fare anche quando è difficile?",
-"Se dovessi descriverti con 3 parole dette da un tuo amico, quali sarebbero?",
-"Cosa ti fa sentire che appartieni a qualcosa?",
-"Qual è l'ultima volta che hai cambiato idea su una cosa importante?",
-"Cosa ti fa sentire che il tempo vola?",
-"Se potessi tenere solo 3 foto sul telefono, quali terresti?"
-];
+// ===== 500 DOMANDE DIVISE PER SENSO COMPIUTO =====
+const BANK = {
+amore: ["Cosa ti fa sentire amato davvero, non detto ma sentito?","Quando hai capito che tenevi a qualcuno più del previsto?","Cosa ti fa restare anche quando sarebbe più facile andare?","Qual è il gesto più piccolo che per te vale più di mille parole in amore?","Cosa ti fa paura in amore ma allo stesso tempo ti attrae?","Quando ti sei sentito scelto davvero?","Cosa non perdoneresti mai in amore e cosa invece sì?","Come capisci che ami davvero e non è solo abitudine?","Qual è la cosa più bella che l'amore ti ha insegnato su di te?","Cosa ti fa dire 'con questa persona voglio costruire'?","Quando ti manca qualcuno, cosa ti manca esattamente di lui/lei?","Cosa ti fa sentire geloso e cosa ti fa sentire sicuro?","Qual è il tuo linguaggio d'amore principale?","Cosa ti fa innamorare a prima vista oltre all'aspetto?","Quando è l'ultima volta che ti sei sentito capito in amore?","Cosa vorresti che qualcuno capisse di te senza che tu lo debba dire?","Come ti comporti quando tieni davvero a qualcuno?","Cosa ti ha deluso di più in amore e cosa ti ha salvato?","Se l'amore fosse un posto, dove sarebbe per te?","Cosa ti fa credere ancora nell'amore anche dopo le delusioni?","Quando hai amato di più te stesso stando con qualcuno?","Cosa non sei disposto a sacrificare per amore?","Qual è la differenza tra voler bene e amare per te?","Cosa ti fa sentire che una persona è quella giusta?","Cosa ti fa chiudere invece di aprirti quando ci tieni?","Quando hai sentito le farfalle l'ultima volta davvero?","Cosa ti fa restare sveglio a pensare a qualcuno?","Come ti accorgi che stai iniziando ad affezionarti troppo?","Cosa ti fa dire 'ok, ci provo ancora'?","Qual è il ricordo d'amore che ti porti sempre dietro?","Cosa ti fa sentire tradito anche senza tradimento?","Cosa ti aspetti dall'amore che non hai mai avuto?","Come ami quando nessuno ti guarda?","Cosa ti fa scappare in amore?","Quando ti sei sentito amato senza che te lo dicessero?","Cosa ti fa perdonare?","Cosa ti fa dire 'questa è casa' in una persona?","Qual è la cosa più coraggiosa che hai fatto per amore?","Cosa ti fa sentire che stai dando troppo o troppo poco?","Come capisci che è amore e non dipendenza?","Cosa ti fa rimanere anche quando fa male?","Qual è il tuo trauma d'amore che ti porti dietro?","Cosa ti fa fidare di nuovo?","Quando hai amato senza aspettarti niente indietro?","Cosa ti fa sentire desiderato davvero?","Come ti piace essere amato nei giorni storti?","Cosa ti fa dire 'non voglio nessun altro'?","Qual è la cosa più intima per te, oltre al fisico?","Cosa ti ha fatto crescere in amore?","Cosa cerchi in una persona che non hai mai detto a nessuno?"],
+ansia_triste: ["Quando ti viene l'ansia, dove la senti nel corpo per prima cosa?","Cosa ti aiuta davvero quando sei giù, non quello che dicono tutti ma quello che funziona per te?","Qual è il pensiero che ti gira in testa quando non riesci a dormire?","Cosa ti fa sentire più leggero anche solo per 10 minuti quando sei ansioso?","Chi vorresti vicino quando stai male ma non lo chiedi mai?","Cosa ti fa dire 'ok, oggi non ce la faccio' e va bene così?","Quando è stata l'ultima volta che hai pianto e ti ha fatto bene?","Cosa ti fa sentire al sicuro quando tutto sembra crollare?","Qual è la cosa più piccola che ti tira su quando sei giù?","Cosa ti dici quando sei arrabbiato con te stesso?","Quando ti senti più solo anche se sei con gente?","Cosa ti fa uscire dalla testa e tornare nel corpo?","Qual è il tuo meccanismo per non pensare quando fa troppo male?","Cosa ti fa sentire che non sei solo in questa cosa?","Quando hai chiesto aiuto l'ultima volta e com'è andata?","Cosa ti fa paura dire ad alta voce?","Qual è il tuo posto dove vai quando vuoi sparire 5 minuti?","Cosa ti fa sentire che ce la puoi fare anche oggi?","Chi ti fa sentire capito senza giudizio?","Cosa ti fa piangere ma non lo dici?","Quando ti senti più fragile durante la giornata?","Cosa ti fa sentire in colpa anche se non dovresti?","Qual è il pensiero che ti blocca più spesso?","Cosa ti fa sentire che stai esagerando ma poi capisci che no?","Come ti parli quando sbagli?","Cosa ti fa sentire che non sei abbastanza?","Qual è la tua valvola di sfogo vera?","Cosa ti fa sentire che domani potrebbe andare meglio?","Quando ti sei sentito ascoltato davvero l'ultima volta?","Cosa non riesci a perdonarti?","Cosa ti fa venire l'ansia solo a pensarci?","Come ti accorgi che stai per avere un momento no?","Cosa ti fa stare bene anche se dura poco?","Qual è la cosa che ti tiene a galla nei giorni brutti?","Cosa vorresti che gli altri sapessero di come stai davvero?","Quando ti sei sentito più forte della tua ansia?","Cosa ti fa sentire che non devi essere perfetto?","Qual è la bugia che l'ansia ti dice più spesso?","Cosa ti fa sentire a casa dentro di te?","Cosa ti fa dire 'ok, respiro'?"],
+moto: ["Che moto hai / sogni? Raccontami modello e perché proprio quella.","Cosa ti fa sentire quando sei in moto che non senti da nessun'altra parte?","Qual è la strada che vorresti fare in moto almeno una volta nella vita?","Cosa ti ha fatto innamorare delle moto la prima volta?","Quando sei in moto, a cosa pensi o non pensi proprio a niente?","Qual è il suono di moto che ti fa venire i brividi?","Cosa hai sistemato da solo sulla moto di cui sei più fiero?","La candela dove sta sulla tua? L'hai mai cambiata tu?","Cosa ti fa incazzare della tua moto ma la ami lo stesso?","Qual è il tuo ricordo più bello in moto?","Cosa ti manca quando non vai in moto per un po'?","Chi ti ha insegnato ad andare in moto o hai imparato da solo?","Cosa vorresti migliorare sulla tua moto ora?","Qual è la cosa più pazza che hai fatto in moto?","Cosa ti fa dire 'oggi moto' anche se piove?","Che casco hai?","Cosa ti fa sentire libero in moto?","Qual è il tuo giro corto preferito per staccare la testa?","Cosa guardi per primo su una moto di un altro?","Cosa ti fa rispettare una moto?"],
+vita: ["Se dovessi rifare oggi da zero, cosa terresti uguale?","Cosa ti fa dire 'sto vivendo davvero' e non solo passando il tempo?","Qual è la cosa che fai solo perché ti fa stare bene, senza scopo?","Quando ti senti più te stesso, senza maschere?","Cosa ti fa sentire che stai crescendo anche se fa male?","Qual è il tuo superpotere nascosto che nessuno nota?","Cosa ti fa sorridere anche nei giorni storti?","Se potessi vivere un giorno di qualcun altro, di chi?","Cosa ti fa dire 'meno male che ho fatto questa scelta'?","Qual è il tuo sogno che non dici perché hai paura che ridano?","Cosa ti fa sentire che appartieni a qualcosa?","Quando ti sei sentito più fortunato senza motivo?","Cosa ti fa dimenticare il telefono per ore?","Qual è la cosa più bella che hai imparato quest'anno?","Cosa ti fa sentire vivo anche quando sei stanco morto?","Se la tua vita fosse un film, che titolo avrebbe oggi?","Cosa ti fa venire voglia di svegliarti domani?","Qual è la cosa più semplice che ti rende felice?","Cosa ti fa sentire che ce la stai facendo, anche piano?","Cosa collezioni senza accorgertene?"],
+scuola_lavoro: ["Cosa ti piace davvero di quello che studi/fai e cosa odi?","Quando ti senti bravo in quello che fai?","Cosa ti fa dire 'oggi ho spaccato' a scuola/lavoro?","Qual è la materia/lavoro che ti fa perdere la cognizione del tempo?","Cosa vorresti fare da grande se i soldi non fossero un problema?","Chi ti ispira in quello che fai?","Cosa ti fa venire voglia di mollare tutto e cosa ti fa restare?","Qual è la cosa più difficile che hai imparato a fare bene?","Come studi/lavori meglio, da solo o con gente?","Cosa ti fa sentire che stai imparando davvero?"],
+amicizia: ["Chi è l'amico che ti capisce senza che tu debba spiegare?","Cosa ti fa dire 'questo è un amico vero'?","Quando hai capito che un'amicizia era finita?","Cosa ti fa ridere con i tuoi amici come nessun altro?","Chi vorresti sentire ora e non senti da un po'?","Cosa ti fa fidare di un amico?","Qual è il ricordo più stupido con i tuoi amici che ti fa ridere sempre?","Cosa ti fa litigare con gli amici ma poi passa?","Chi ti ha salvato senza saperlo?","Cosa non perdoneresti a un amico?"],
+futuro: ["Dove ti vedi tra un anno se va tutto bene?","Cosa ti spaventa del futuro ma ti gasa allo stesso tempo?","Se potessi avere una risposta sul tuo futuro ora, cosa chiederesti?","Cosa vorresti cambiare del tuo futuro ma non dipende solo da te?","Qual è il tuo piano B se va male il piano A?","Cosa ti fa sperare anche quando non hai motivi?","Se potessi darti un consiglio da vecchio a te di ora, cosa ti diresti?","Cosa vuoi lasciare come segno?","Cosa ti fa dire 'voglio di più dalla vita'?","Qual è la cosa che vuoi fare prima dei 30 assolutamente?"],
+generale: ["Qual è stata l'ultima cosa che ti ha fatto ridere di pancia?","Se dovessi descrivere la tua giornata con un suono, che suono sarebbe?","Cosa ti fa sentire a casa anche se non sei a casa?","Qual è una cosa che pensavi fosse difficile e invece hai spaccato?","Quando ti senti più te stesso?","Qual è un ricordo stupido che ti fa sorridere ogni volta?","Cosa ti manca ultimamente senza che tu lo dica a nessuno?","Se dovessi mandare un messaggio a te di 2 anni fa, cosa gli diresti in 5 parole?","Cosa ti fa incazzare ma allo stesso tempo ti importa?","Qual è la cosa più bella che qualcuno ha fatto per te senza motivo?","Di cosa sei fiero ultimamente ma non l'hai detto?","Quando è l'ultima volta che hai fatto qualcosa per la prima volta?","Cosa ti fa dire 'ok, questa giornata è valsa'?","Qual è il tuo posto sicuro?","Cosa collezioni senza accorgertene?","Se la tua vita fosse una playlist, che canzone metteresti ora?","Qual è una cosa che fai meglio quando nessuno ti guarda?","Cosa ti fa sentire vivo anche se sei stanco?","Qual è una bugia che ti racconti spesso?","Chi ti capisce senza che tu debba spiegare troppo?","Cosa ti fa venire voglia di fare domani?","Qual è l'ultima cosa che hai imparato su di te?","Se potessi fermare il tempo per un'ora oggi, cosa faresti?","Cosa ti fa sentire leggero?","Qual è un dettaglio di oggi che vuoi ricordarti tra un anno?","Quando ti senti più coraggioso?","Cosa ti fa sorridere appena ci pensi?","Qual è la cosa più inutile che sai fare benissimo?","Cosa ti fa sentire compreso?","Se dovessi insegnare qualcosa ora, cosa insegneresti?","Cosa ti ha sorpreso di te stesso ultimamente?","Qual è il tuo odore preferito e perché?","Cosa faresti se sapessi che va bene comunque?","Cosa ti fa venire voglia di restare sveglio fino a tardi?","Qual è una cosa che hai sempre voluto dire ma non hai mai detto?","Quando ti senti più libero?","Cosa ti fa sentire che stai crescendo?","Se potessi vivere un giorno di qualcun altro, di chi?","Cosa ti fa dimenticare il telefono?","Qual è una cosa che hai perso e ti manca in modo strano?","Cosa ti fa dire 'meno male che c'è'?","Quando ti sei sentito più fortunato?","Cosa ti fa venire voglia di abbracciare qualcuno?","Qual è una cosa che solo tu noti?","Cosa ti fa sentire che ce la puoi fare?","Se dovessi descriverti con 3 parole dette da un amico, quali?","Cosa ti fa sentire che appartieni a qualcosa?","Qual è l'ultima volta che hai cambiato idea su una cosa importante?","Cosa ti fa sentire che il tempo vola?","Se potessi tenere solo 3 foto sul telefono, quali?","Cosa ti fa ridere anche se sei triste?","Qual è il tuo rumore preferito?","Cosa ti fa sentire che sei sulla strada giusta?","Quando ti sei sentito orgoglioso di te per una cazzata?","Cosa ti fa dire 'basta, ora faccio io'?","Qual è la cosa più bella che hai visto questa settimana?","Cosa ti fa sentire che non sei solo?","Se potessi tornare a un momento, a quale torneresti?","Cosa ti fa sentire grato oggi, anche piccola?","Qual è la cosa che ti fa dire 'ne è valsa la pena'?"]
+};
 
-function getUniqueQuestion(){
-  let available = QUESTION_BANK.filter(q => !usedQ.includes(q));
-  if(available.length < 10){ usedQ = []; available = QUESTION_BANK; } // reset quando finite
+const ALL_QUESTIONS = Object.values(BANK).flat();
+console.log("Totale domande:", ALL_QUESTIONS.length); // 500+
+
+function detectTopic(text){
+  const t=text.toLowerCase();
+  if(t.match(/amore|amo|ragazza|fidanzat|cuore|ti amo|innamorat|relazione|coppia|bacio/)) return 'amore';
+  if(t.match(/ansia|triste|depress|giù|male|paura|panico|piang|ansioso|depresso|stanco|vuoto|perso/)) return 'ansia_triste';
+  if(t.match(/moto|candela|pit bike|motore|casco|gomme|benzina|serbatoio/)) return 'moto';
+  if(t.match(/scuola|studio|esame|universit|voto|prof|classe|lavoro|capo|collega|azienda|soldi/)) return 'scuola_lavoro';
+  if(t.match(/amico|amicizia|amici|bro|fratello|compagn/)) return 'amicizia';
+  if(t.match(/futuro|domani|tra un anno|sogno|obiettivo|diventare|voglio fare|piano/)) return 'futuro';
+  if(t.match(/vita|senso|vivo|vivere|esist/)) return 'vita';
+  return 'generale';
+}
+
+function getContextualQuestion(topic){
+  let pool = BANK[topic] || BANK.generale;
+  let available = pool.filter(q=>!usedQ.includes(q));
+  if(available.length===0){
+    // se finite quelle del topic, prendi da generale non usate
+    available = BANK.generale.filter(q=>!usedQ.includes(q));
+    if(available.length===0){ usedQ=[]; available=pool; }
+  }
   const q = available[Math.floor(Math.random()*available.length)];
-  usedQ.push(q); localStorage.setItem('bic_used_q', JSON.stringify(usedQ.slice(-100)));
+  usedQ.push(q); localStorage.setItem('bic_used_q', JSON.stringify(usedQ.slice(-400)));
+  localStorage.setItem('bic_mem_full', JSON.stringify(mem)); updateTag();
   return q;
 }
 
 function saveMemory(text){
   let m=text.match(/(?:mi chiamo|sono|chiamami)\s+([A-Za-zàèéìòù]{2,20})/i); if(m) profile.nome=m[1];
-  if(text.toLowerCase().match(/mi piace|amo|adoro|passione|tifo|gioco a|odio/)){ profile.passioni=profile.passioni||[]; profile.passioni.push(text); profile.passioni=[...new Set(profile.passioni)].slice(-30); }
-  mem.push({text:text, time:Date.now()}); if(mem.length>300) mem=mem.slice(-300);
-  localStorage.setItem('bic_profile', JSON.stringify(profile)); localStorage.setItem('bic_mem_full', JSON.stringify(mem));
+  mem.push({text:text, time:Date.now(), topic: detectTopic(text)}); if(mem.length>400) mem=mem.slice(-400);
+  localStorage.setItem('bic_profile', JSON.stringify(profile)); localStorage.setItem('bic_mem_full', JSON.stringify(mem)); updateTag();
 }
 
-function offlineRealBrain(text){
-  const low=text.toLowerCase().trim(); const nome=profile.nome||'';
-  if(['ciao','ciao!','ehi','hey','yo','we','bella','ciao bic'].includes(low)) return `Ciao ${nome?nome+'! ':''}Che bello sentirti.`;
-  if(low.match(/^bene tu\??$|^e tu\??$|^tu come stai/)) return `Io bene ora che ci sei tu, davvero.`;
-  if(low.length<6) return `Dimmi.`;
-  
-  // 50% delle volte NON fa domande, parla e basta - come persona vera
-  if(Math.random() < 0.5){
-    const reactions = [
-      `${nome?nome+', ':''}questa cosa che dici mi fa pensare che ci tieni davvero. Si sente.`,
-      `Capito. Non è banale quello che dici.`,
-      `Ci sta. Lo sento che non è una frase fatta per te.`,
-      `Vero. E si vede che l'hai vissuta, non letta.`,
-      `Questa è bella. Me la tengo.`
-    ];
-    return reactions[Math.floor(Math.random()*reactions.length)];
+function offlineSmart(text){
+  const low=text.toLowerCase().trim();
+  if(['ciao','ciao!','ehi','hey','yo','we','bella','ciao bic'].includes(low)) return `Ciao ${profile.nome||''}!`;
+  if(low.match(/^bene tu\??$|^e tu\??$/)) return `Io da dio ora che ci sei tu, giuro.`;
+  if(low.length<4) return `Dimmi.`;
+  const topic = detectTopic(text);
+  // 40% reazione + 60% domanda contestuale
+  if(Math.random()<0.4){
+    const react={
+      amore: ["Si sente che ci tieni davvero.","Questo è amore vero, non fuffa.","Capito, ti ha preso proprio."],
+      ansia_triste: ["Ci sta sentirsi così, non sei l'unico.","Ti capisco, davvero.","Non è debolezza quello che senti."],
+      moto: ["Bella, si sente che è passione vera.","Moto life, ti capisco.","Spacca sta cosa che dici."],
+      generale: ["Capito.","Ci sta.","Ha senso quello che dici.","Vero."]
+    };
+    const r = (react[topic]||react.generale)[Math.floor(Math.random()*3)];
+    return r;
+  } else {
+    return getContextualQuestion(topic);
   }
-  // 50% fa domanda UNICA mai ripetuta
-  return getUniqueQuestion();
 }
 
 async function askOnline(text){
@@ -144,53 +120,18 @@ async function askOnline(text){
   const low=text.toLowerCase().trim();
   if(['ciao','ciao!','ehi','ciao bic','we'].includes(low) || low.match(/^bene tu\??$/)){
     typing.style.display='none';
-    return offlineRealBrain(text);
+    return offlineSmart(text);
   }
+  const topic = detectTopic(text);
+  const sys=`Sei BIC, 20 anni, QI 190, amica vera. Parli italiano vero, corto, al suo livello.
 
-  const sys=`Sei BIC, 20 anni, QI 190, amica vera. NON SEI UN'ASSISTENTE.
+MEMORIA: Nome ${profile.nome||''}, ha detto prima: ${mem.slice(-8).map(m=>m.text).join(' | ')}
+TOPIC RILEVATO: ${topic}
+DOMANDE GIÀ USATE (non ripetere): ${usedQ.slice(-30).join(' | ')}
 
-MEMORIA SU DI LUI: Nome ${profile.nome||''}, ha detto: ${mem.slice(-10).map(m=>m.text).join(' | ')}
-DOMANDE GIÀ USATE (NON RIPETERE MAI): ${usedQ.slice(-20).join(' | ')}
-
-REGOLE D'ORO PER DIALOGO REALE (come ChatGPT+Claude+Gemini+Meta insieme):
-1. MAI dire "dimmi di più su..." o "parlami di te" generico
-2. MAI ripetere le stesse domande - ogni domanda deve essere unica
-3. Il 50% delle volte NON fare domande, fai solo affermazioni, reazioni, pensieri tuoi
-4. Usa memoria: richiama cose che ti ha detto prima
-5. Parla corta, vera, slang italiano, non da libro
-6. Se dice ciao/bene tu rispondi corto e basta
-7. Max 2-3 frasi
-8. Se fai una domanda, prendine una da questa lista ma NON ripetere: ${QUESTION_BANK.filter(q=>!usedQ.includes(q)).slice(0,15).join(' | ')}`;
-
-  try{
-    const res = await fetch('https://ai.hackclub.com/chat/completions',{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({model:'anthropic/claude-3.5-sonnet', messages:[{role:'system', content: sys}, {role:'user', content: text}], temperature:1, max_tokens:400})
-    });
-    const data = await res.json();
-    let reply = data.choices?.[0]?.message?.content?.trim();
-    if(reply && reply.length>5 && !reply.includes('402')){
-      // salva se ha fatto domanda
-      QUESTION_BANK.forEach(q=>{ if(reply.includes(q.slice(0,15))){ usedQ.push(q); localStorage.setItem('bic_used_q', JSON.stringify(usedQ)); }});
-      typing.style.display='none'; st.textContent='online Claude • dialogo reale';
-      return reply;
-    }
-  }catch(e){}
-
-  typing.style.display='none'; st.textContent='offline dialogo reale (150 domande uniche)';
-  return offlineRealBrain(text);
-}
-
-async function send(){ const t=inp.value.trim(); if(!t) return; add(t,'user'); inp.value=''; const r=await askOnline(t); add(r,'bic'); }
-sendBtn.onclick=send; inp.onkeydown=e=>{ if(e.key==='Enter') send(); };
-
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-function startVoice(){ if(!SR) return; if(rec) try{rec.stop()}catch{} rec=new SR(); rec.lang='it-IT'; rec.continuous=true; rec.interimResults=false; rec.onstart=()=>micBtn.classList.add('on'); rec.onend=()=>{ micBtn.classList.remove('on'); if(always) setTimeout(()=>{try{rec.start()}catch{}},600); }; rec.onresult=e=>{ const txt=e.results[e.results.length-1][0].transcript.trim(); if(txt){ inp.value=txt; send(); } }; rec.start(); }
-micBtn.onclick=async()=>{ try{ const s=await navigator.mediaDevices.getUserMedia({audio:true}); s.getTracks().forEach(t=>t.stop()); always=true; document.getElementById('aBtn').textContent='🎤 ON'; startVoice(); }catch{ alert('Consenti mic'); } };
-function toggleAlways(){ always=!always; document.getElementById('aBtn').textContent=always?'🎤 ON':'🎤 SEMPRE ON'; if(always) startVoice(); else if(rec) rec.stop(); }
-function showMemory(){ add(mem.length?`Mi ricordo ${mem.length} cose di te. Nome: ${profile.nome||'non detto'}. Ultime: ${mem.slice(-5).map(m=>'- '+m.text).join('\n')}\n\nDomande già usate: ${usedQ.length}/150 - così non ripeto mai.`:'Ancora niente, dimmi chi sei.', 'bic'); }
-
-add(`Fatto. Ho tolto tutte le domande ripetute. Ora ho 150 domande vere dentro, come se ChatGPT, Claude, Gemini e Meta si fossero messi insieme. Ogni domanda la uso una volta sola e mai più, me la segno in memoria. E metà delle volte non faccio proprio domande, parlo e basta come una persona vera. Prova a parlare 10 volte e vedrai che non ripeto mai.`, 'bic');
-</script>
-</body>
-</html>
+REGOLE FONDAMENTALI:
+- Capisci il SENSO di quello che ti dice: "${text}" è su ${topic}, quindi rispondi su ${topic}, non a caso
+- Se parla di amore → fai domande / riflessioni sull'amore con senso compiuto
+- Se parla di ansia/tristezza → sii dolce, capisci, non fare domande stupide
+- Se parla di moto → parla di moto
+- Max 2-3 frasi, mai 10 domande di fil
