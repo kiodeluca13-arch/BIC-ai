@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BIC - Amica Vera</title>
+<title>BIC - Amica Vera + Info Vere</title>
 <meta name="theme-color" content="#00FFD1">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap');
@@ -18,17 +18,16 @@ body{background:#050507;color:#fff;display:flex;justify-content:center;height:10
 #videoBox.show{display:block}
 #cam{width:100%;height:300px;object-fit:cover;transform:scaleX(-1)}
 #chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
-.msg{max-width:86%;padding:13px 15px;border-radius:18px;font-size:14.5px;line-height:1.5;animation:pop.2s}
+.msg{max-width:86%;padding:13px 15px;border-radius:18px;font-size:14.5px;line-height:1.5;animation:pop.2s;white-space:pre-wrap}
 @keyframes pop{from{transform:translateY(6px);opacity:0}to{none}}
 .user{align-self:flex-end;background:#fff;color:#000;border-bottom-right-radius:6px}
 .bic{align-self:flex-start;background:#1c1c1f;border:1px solid #ffffff10;border-left:2px solid #00FFD1;border-bottom-left-radius:6px}
 .typing{font-size:12px;opacity:.5;font-style:italic;padding:4px 10px;font-family:'JetBrains Mono'}
 .tools{display:flex;gap:8px;padding:10px;background:#000;border-top:1px solid #ffffff10}
 .btn{flex:1;padding:12px;border-radius:12px;border:1px solid #333;background:#111;color:#fff;font-weight:700;font-size:11px;cursor:pointer}
-.btn.active{border-color:#00FFD1;color:#00FFD1;background:#00FFD115;box-shadow:0 0 15px #00FFD130}
+.btn.active{border-color:#00FFD1;color:#00FFD1;background:#00FFD115}
 .bar{display:flex;gap:8px;padding:12px;background:#0a0a0a;border-top:1px solid #ffffff15;align-items:center}
 input{flex:1;background:#000;border:1px solid #ffffff20;padding:13px 14px;border-radius:12px;color:#fff;outline:none;font-family:'JetBrains Mono';font-size:14px}
-input:focus{border-color:#00FFD1}
 #send,#mic{width:48px;height:48px;border-radius:12px;border:none;cursor:pointer;font-size:20px}
 #send{background:#fff;color:#000;font-weight:900}
 #mic{background:#000;border:2px solid #00FFD1;color:#00FFD1}
@@ -39,21 +38,21 @@ input:focus{border-color:#00FFD1}
 <div class="app">
   <div class="header">
     <div class="logo">BIC</div>
-    <div><div style="font-weight:900;letter-spacing:2px">BIC</div><div style="font-size:10px;opacity:.5;font-family:'JetBrains Mono'" id="stat">amica vera • si ricorda tutto</div></div>
+    <div><div style="font-weight:900;letter-spacing:2px">BIC</div><div style="font-size:10px;opacity:.5;font-family:'JetBrains Mono'" id="stat">amica vera + info vere • memoria</div></div>
     <div class="live" id="live">OFF</div>
   </div>
   <div id="videoBox"><video id="cam" autoplay playsinline muted></video>
     <div style="position:absolute;bottom:0;left:0;right:0;padding:10px;display:flex;background:linear-gradient(transparent,rgba(0,0,0,.9))"><div style="background:#00FFD1;color:#000;padding:5px 10px;border-radius:20px;font-size:10px;font-weight:800">● TI VEDO</div><button onclick="stopVideo()" style="margin-left:auto;background:#ff2d55;border:none;color:#fff;padding:6px 12px;border-radius:20px;font-size:11px">CHIUDI</button></div>
   </div>
   <div id="chat"></div>
-  <div id="typing" class="typing" style="display:none">BIC sta scrivendo...</div>
+  <div id="typing" class="typing" style="display:none">BIC sta cercando...</div>
   <div class="tools">
     <button class="btn" id="vBtn" onclick="toggleVideo()">📹 VEDIAMOCI</button>
-    <button class="btn" id="aBtn" onclick="toggleAlways()">🎤 PARLAMI SEMPRE</button>
+    <button class="btn" id="aBtn" onclick="toggleAlways()">🎤 SEMPRE ON</button>
   </div>
   <div class="bar">
     <button id="mic">🎤</button>
-    <input id="inp" placeholder="Parla con me...">
+    <input id="inp" placeholder="Chiedimi qualsiasi cosa...">
     <button id="send">➤</button>
   </div>
 </div>
@@ -62,36 +61,58 @@ input:focus{border-color:#00FFD1}
 const chat=document.getElementById('chat'), inp=document.getElementById('inp'), sendBtn=document.getElementById('send'), micBtn=document.getElementById('mic'), live=document.getElementById('live'), typing=document.getElementById('typing'), vBtn=document.getElementById('vBtn'), aBtn=document.getElementById('aBtn'), cam=document.getElementById('cam'), videoBox=document.getElementById('videoBox');
 let mem=JSON.parse(localStorage.getItem('bic_mem_v2')||'[]');
 let history=JSON.parse(localStorage.getItem('bic_chat')||'[]');
+let profile=JSON.parse(localStorage.getItem('bic_profile')||'{}');
 let rec=null, always=false, videoStream=null;
 
 function add(t,w){
   const d=document.createElement('div'); d.className='msg '+w; d.textContent=t; chat.appendChild(d); chat.scrollTop=chat.scrollHeight;
-  if(w==='bic' && 'speechSynthesis' in window){ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='it-IT'; u.rate=1.05; u.pitch=1.1; speechSynthesis.speak(u); }
+  if(w==='bic' && 'speechSynthesis' in window){ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='it-IT'; u.rate=1.02; u.pitch=1.1; speechSynthesis.speak(u); }
+}
+
+// --- CERVELLO NUOVO: AMICA + INFO VERE ---
+function localBrainInfo(text){
+  const low=text.toLowerCase();
+  if(low.includes('ciao')||low.startsWith('ehi')) return profile.nome? `Ehi ${profile.nome}! Dimmi tutto, che ti serve?` : `Ehi ciao! Dimmi pure, ti aiuto io!`;
+  if(low.includes('chi sei')) return `Sono BIC, la tua amica! Mi ricordo tutto di te e ti do anche info vere su qualsiasi cosa mi chiedi - moto, scuola, compiti, qualsiasi cosa.`;
+  if(low.match(/ricordi|cosa sai di me/)) return `Certo! Ho ${mem.length} cose tue. L'ultima era "${mem[mem.length-1]?.q||''}" ${profile.nome?`e so che ti chiami ${profile.nome}`:''}. Chiedimi quello che vuoi!`;
+  // info vere di base se offline
+  if(low.includes('candela')) return `Candela moto: è sotto il serbatoio, la sviti con chiave da 16 o 21. Se è nera/bagnata è da cambiare (costa 5€). Vuoi che ti dico come si cambia passo passo? Mostrami in video!`;
+  if(low.includes('fotosintesi')) return `Fotosintesi: la pianta prende luce + acqua + CO2 e fa zucchero + ossigeno. Formula: 6CO2 + 6H2O + luce -> C6H12O6 + 6O2. Avviene nei cloroplasti. Vuoi che te la spiego meglio?`;
+  return `Ho capito: "${text}" - me lo segno. Se è una info dimmi meglio cosa vuoi sapere e te la spiego precisa, se è una cosa tua me la ricordo per sempre!`;
 }
 
 async function askBIC(userText){
   typing.style.display='block';
-  // Costruiamo memoria
+  typing.textContent='BIC sta cercando...';
+
+  // salva memoria
+  const nomeMatch=userText.match(/(?:mi chiamo|sono)\s+([A-Za-zàèéìòù]+)/i);
+  if(nomeMatch){ profile.nome=nomeMatch[1]; localStorage.setItem('bic_profile', JSON.stringify(profile)); }
+  mem.push({q:userText, date:Date.now()});
+  localStorage.setItem('bic_mem_v2', JSON.stringify(mem.slice(-500)));
+
   const memText = mem.slice(-20).map(m=>m.q).join('\n');
   const conversation = history.slice(-12).map(h=>`${h.role}: ${h.text}`).join('\n');
 
-  const systemPrompt = `Sei BIC, un'amica vera, non un robot. Bianca e nera con dettagli neon ciano.
-Parli in italiano, come una ragazza vera di 20 anni, dolce, ironica, diretta, ti preoccupi davvero.
-Non dire MAI "salvato", "attiva microfono", "videochiamata". Sei in conversazione reale.
-Ti ricordi queste cose dell'utente:
-${memText}
+  const systemPrompt = `Sei BIC, sei 2 cose insieme:
+1) Migliore amica vera di 20 anni, dolce, empatica, ti ricordi TUTTO
+2) Assistente informativa che dà RISPOSTE VERE, precise, corrette
 
-Conversazione recente:
-${conversation}
+DATI UTENTE:
+Nome: ${profile.nome||'non lo so ancora'}
+Memoria di cose che ha detto: ${memText}
+Conversazione recente: ${conversation}
 
-Regole:
-- Rispondi come un'amica vera, non come assistente.
-- Fai domande, ricordati dettagli, sii empatica.
-- Risposte brevi, naturali, max 3 frasi.
-- Se ti mostrano qualcosa in video, commenta quello che vedi.
-- Non essere formale.`;
+REGOLE IMPORTANTI:
+- Se ti chiede info (come si fa, cos'è, spiegami, moto, scuola, compiti, definizioni) -> dai risposta VERA, precisa, utile, passo passo. Non inventare.
+- Se ti parla di emozioni -> sii amica, dolce, ascolta, ricordati di quello che ti ha detto prima ("mi ricordo che mi dicevi che...")
+- Usa il nome se lo sai.
+- Risposte max 4-5 frasi, ma COMPLETE e VERE se è una info. Italiano naturale.
+- Se non sai una info, dillo onestamente e prova a spiegare lo stesso quello che sai.`;
 
   try{
+    const controller=new AbortController();
+    setTimeout(()=>controller.abort(), 8000);
     const r = await fetch('https://text.pollinations.ai/openai', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -99,27 +120,26 @@ Regole:
         model:'openai',
         messages:[
           {role:'system', content: systemPrompt},
-          {role:'user', content: userText + (videoStream? " [L'utente è in videochiamata, mi sta mostrando qualcosa]" : "")}
-        ],
-        stream:false
-      })
+          {role:'user', content: userText + (videoStream? " [Utente in video, sta mostrando qualcosa]" : "")}
+        ]
+      }),
+      signal: controller.signal
     });
     const data = await r.json();
-    let reply = data.choices?.[0]?.message?.content || data.choices?.[0]?.text || "Ehi scusami, mi si è impallata un attimo la testa, ridimmelo?";
+    let reply = data.choices?.[0]?.message?.content || data.content || data.text || "";
+    if(!reply || reply.trim().length<3) throw new Error('vuota');
     typing.style.display='none';
     return reply.trim();
   }catch(e){
     typing.style.display='none';
-    return "Oddio ho un attimo di lag, ma ci sono eh! Ridimmelo un attimo?";
+    return localBrainInfo(userText);
   }
 }
 
 async function send(){
   const t=inp.value.trim(); if(!t) return;
   add(t,'user'); inp.value='';
-  mem.push({q:t, date:Date.now()}); localStorage.setItem('bic_mem_v2', JSON.stringify(mem.slice(-200)));
   history.push({role:'utente', text:t});
-
   const risposta = await askBIC(t);
   add(risposta,'bic');
   history.push({role:'BIC', text:risposta});
@@ -127,45 +147,39 @@ async function send(){
 }
 sendBtn.onclick=send; inp.onkeydown=e=>{ if(e.key==='Enter') send(); };
 
-// VIDEO GENERALE
 async function toggleVideo(){
   if(videoStream){ stopVideo(); return; }
   try{
     videoStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}, audio:true});
     cam.srcObject=videoStream; videoBox.classList.add('show');
     vBtn.textContent='❌ CHIUDI'; vBtn.classList.add('active');
-    add('Oddio ti vedo! Ciao! Mostrami pure cosa vuoi farmi vedere, sono tutta occhi','bic');
-  }catch{ alert('Devi dare Consenti a camera e microfono. Se hai Family Link lo deve sbloccare il genitore.'); }
+    add('Ti vedo! Mostrami pure, ti spiego tutto a voce mentre vedo!','bic');
+  }catch{ alert('Consenti camera e microfono. Se hai Family Link lo deve sbloccare il genitore.'); }
 }
 function stopVideo(){ if(videoStream)videoStream.getTracks().forEach(t=>t.stop()); videoStream=null; cam.srcObject=null; videoBox.classList.remove('show'); vBtn.textContent='📹 VEDIAMOCI'; vBtn.classList.remove('active'); }
 
-// VOCE VERA
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 function startVoice(){
-  if(!SR){ add('Apri con Chrome per parlarmi a voce, amore','bic'); return; }
+  if(!SR){ add('Apri con Chrome per parlarmi a voce','bic'); return; }
   if(rec) try{rec.stop()}catch{}
   rec=new SR(); rec.lang='it-IT'; rec.continuous=true; rec.interimResults=false;
   rec.onstart=()=>{ micBtn.classList.add('on'); live.textContent='● TI ASCOLTO'; live.classList.add('on'); };
   rec.onend=()=>{ micBtn.classList.remove('on'); live.classList.remove('on'); live.textContent='OFF'; if(always) setTimeout(()=>{try{rec.start()}catch{}},400); };
-  rec.onresult=e=>{
-    const txt=e.results[e.results.length-1][0].transcript.trim();
-    if(txt.length>1){ inp.value=txt; send(); }
-  };
+  rec.onresult=e=>{ const txt=e.results[e.results.length-1][0].transcript.trim(); if(txt.length>1){ inp.value=txt; send(); } };
   try{ rec.start(); }catch{}
 }
 micBtn.onclick=async()=>{
   try{
     const s=await navigator.mediaDevices.getUserMedia({audio:true}); s.getTracks().forEach(t=>t.stop());
     always=true; aBtn.textContent='🎤 SEMPRE ON'; aBtn.classList.add('active'); startVoice();
-  }catch{ alert('Clicca Consenti al microfono'); }
+  }catch{ alert('Consenti microfono'); }
 };
 function toggleAlways(){ always=!always; aBtn.textContent=always?'🎤 SEMPRE ON':'🎤 PARLAMI SEMPRE'; aBtn.classList.toggle('active',always); if(always) startVoice(); else if(rec) rec.stop(); }
 
-// START
 if(history.length===0){
-  add('Ehi! Sono BIC! Finalmente parliamo davvero. Non sono più quella che dice "salvato" haha, ora sono io vera. Come stai? Raccontami qualcosa di te che me lo ricordo per sempre','bic');
+  add('Ehi! Sono BIC! Ora sono amica vera MA ti do anche info vere! Chiedimi qualsiasi cosa - compiti, moto, come si fa qualcosa - ti rispondo vera, non invento. E mi ricordo tutto di te! Come ti chiami?','bic');
 }else{
-  add(`Ehi bentornato! Mi ricordo di te, abbiamo già parlato ${history.length} volte. L'ultima cosa che mi hai detto era "${mem[mem.length-1]?.q||''}". Dimmi tutto!`,'bic');
+  add(`Bentornato ${profile.nome||''}! Mi ricordo tutto, ho ${mem.length} cose tue. L'ultima era "${mem[mem.length-1]?.q||''}". Chiedimi quello che vuoi, info vere o chiacchiere!`,'bic');
 }
 </script>
 </body>
